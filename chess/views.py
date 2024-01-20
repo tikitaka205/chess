@@ -185,10 +185,7 @@ class Chess:
         isVaild_is=self.board[i_from][j_from]!=EMPTY
         isVaild=isValid_from and isValid_to and isVaild_is
         if isVaild:
-            # is_ok=True
-            # is_kill=False
-            # print(i_from)
-            # print(j_from)
+            is_ok=True
             if isVaild_horizon:
                 print("호리즌",isVaild_horizon)
                 dif=j_to-j_from
@@ -201,21 +198,8 @@ class Chess:
                     if i < dif:
                         if self.board[i_from][j_from+i] != EMPTY:
                             print("horizon 움직임 실패")
-                            return False
-                        else:
-                            self.board[i_from][j_from]=EMPTY
-                            self.board[i_to][j_to] = from_positon[2] + ROOK
-                            print("horizon 움직임 성공")
-                            return True
-                    else:
-                        if self.board[i_from][j_from+i] != EMPTY:
-                            print("horizon 움직임 실패")
-                            return False
-                        else:
-                            self.board[i_from][j_from]=EMPTY
-                            self.board[i_to][j_to] = from_positon[2] + ROOK
-                            print("horizon 움직임 성공")
-                            return True
+                            is_ok=False
+                            break
 
             elif isVaild_vertical:
                 print("버티컬",isVaild_vertical)
@@ -224,37 +208,20 @@ class Chess:
                     #룩이 위로움직냐 아래로 움직이냐
                     #룩 위로 움직임
                     if i > dif:
-
-                        print(i_from)
-                        print(i_to)
-                        print(dif)
                         if self.board[i_from-i][j_from] != EMPTY:
+                            #전부다 확인하고 그 조건이 맞으면 옮겨야함
                             #5에서 0으로 이동 dif=-5
                             #0-7범위 여기범위에서는
                             #b3 b8이 뚫린다 범위 체크다시 확인
                             #5->0
+                            #0-5까지 확인
                             print("i",i)
                             print("vertical 위 움직임 실패")
+                            is_ok=False
                             break
-                        else:
-                            print("i",i)
-                            self.board[i_from][j_from]=EMPTY
-                            self.board[i_to][j_to] = from_positon[2] + ROOK
-                            print("vertical 위 움직임 성공")
-                            return True
-                    #룩 아래로 움직임  
-                    else:
-                        if self.board[i_from+i][j_from] != EMPTY:
-                            print("vertical 아래 움직임 실패")
-                            return False
-                        else:
-                            self.board[i_from][j_from]=EMPTY
-                            self.board[i_to][j_to] = from_positon[2] + ROOK
-                            print("vertical 아래 움직임 성공")
-                            return True
-
-            print("vaild는 성공 버티컬 호리즌으로 안들어감")
-            return True
+            if is_ok:
+                    self.board[i_from][j_from]=EMPTY
+                    self.board[i_to][j_to] = from_positon[2] + ROOK
         else:
             print("룩 vaild 실패")
             return False
@@ -262,15 +229,14 @@ class Chess:
 chess=Chess()
 chess.set_game() #=Chess().print_board() 체스 클래스에 print_board()라는 함수를 실행
 chess.move_pawn('a7bP','a5')#폰 아래로 이동
+chess.move_pawn('b7bP','b5')#폰 아래로 이동
 chess.move_pawn('a2wP','a4')#폰 위로이동
 chess.move_rook('a1wR','a3')#룩 위로이동
 chess.move_rook('a3wR','d3')#룩 오른쪽 이동
 chess.move_rook('d3wR','b3')#룩 왼쪽이동
-chess.move_rook('b3wR','b8'),print("말을 넘어가")#말을 넘어가는 에러
-chess.move_rook('b8wR','b3')#룩 아래이동
+chess.move_rook('b3wR','b7'),print("말을 넘어가")#말을 넘어가는 에러
+# chess.move_rook('b8wR','b3')#룩 아래이동
 chess.print_board()
-
-
 
 # chess.print_board()
 # print(chess.print_board)
