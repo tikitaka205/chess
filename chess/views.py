@@ -172,11 +172,6 @@ class Chess:
     #move_rook
     #move_rook('a7bR','a6')
     def move_rook(self, from_positon, to_position):
-        # isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
-        # isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
-        # isJPositionSame=j_from==j_to
-        # isIPositionSame=i_from!=i_to
-
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
         isVaild_same_positon = i_from!=i_to and j_from!=j_to
@@ -226,15 +221,66 @@ class Chess:
             print("룩 vaild 실패")
             return False
 
+    #같은자리 금지
+    #대각선 다른말의 유무
+    #절대값 같아야함
+    #i차이 j차이가 같아야 한다
+    #a1 b2 c3 d4
+    def move_bishop(self,from_positon, to_position):
+        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+        dif_i=i_to-i_from
+        dif_j=j_to-j_from
+        isValid_diagonal=abs(dif_i)==abs(dif_j)
+        isValid=isValid_from and isValid_to and isValid_diagonal
+        #대각선 ++ +- -+ -- 네가지
+        is_ok=True
+        if isValid:
+            print("bishop vaild")
+            #dif_i dif_j의 차이
+            #dif i 가 양수면 아래로 음수면 위로
+            #dif j 가 양수면 오른쪽 음수면 왼쪽
+            #[i,j]=[+,+]오른쪽 아래 [+,-]왼쪽 아래 [-,+] 오른쪽 위[-,-] 왼쪽 위
+            if dif_i>0 and dif_j>0:
+                for i in range(1,abs(dif_i)+1):
+                    if self.board[i_from-i][j_from-i]!=EMPTY:
+                        is_ok=False
+                        print("bishop ++ move")
+                        pass
+            if dif_i<0 and dif_j>0:
+                for i in range(1,abs(dif_i)+1):
+                    if self.board[i_from-i][j_from-i]!=EMPTY:
+                        is_ok=False
+                        print("bishop +- move")
+                        pass
+            if dif_i>0 and dif_j<0:
+                for i in range(1,abs(dif_i)+1):
+                    if self.board[i_from-i][j_from-i]!=EMPTY:
+                        is_ok=False
+                        print("bishop -+ move")
+                        pass
+            if dif_i<0 and dif_j<0:
+                for i in range(1,abs(dif_i)+1):
+                    if self.board[i_from-i][j_from-i]!=EMPTY:
+                        is_ok=False
+                        print("bishop -- move")
+                        pass
+        if is_ok==True:
+            print("비숍 이동")
+            self.board[i_from][j_from]=EMPTY
+            self.board[i_to][j_to] = from_positon[2] + BISHOP
+
 chess=Chess()
 chess.set_game() #=Chess().print_board() 체스 클래스에 print_board()라는 함수를 실행
-chess.move_pawn('a7bP','a5')#폰 아래로 이동
-chess.move_pawn('b7bP','b5')#폰 아래로 이동
-chess.move_pawn('a2wP','a4')#폰 위로이동
-chess.move_rook('a1wR','a3')#룩 위로이동
-chess.move_rook('a3wR','d3')#룩 오른쪽 이동
-chess.move_rook('d3wR','b3')#룩 왼쪽이동
-chess.move_rook('b3wR','b7'),print("말을 넘어가")#말을 넘어가는 에러
+# chess.move_pawn('a7bP','a5')#폰 아래로 이동
+# chess.move_pawn('b7bP','b5')#폰 아래로 이동
+# chess.move_pawn('a2wP','a4')#폰 위로이동
+# chess.move_rook('a1wR','a3')#룩 위로이동
+# chess.move_rook('a3wR','d3')#룩 오른쪽 이동
+# # chess.move_rook('d3wR','b3')#룩 왼쪽이동
+# chess.move_rook('b3wR','b7'),print("말을 넘어가")#말을 넘어가는 에러
+chess.move_pawn('b2wB','b4')#폰 이동
+chess.move_bishop('c1wB','a3')#비숍 왼쪽위 이동
 # chess.move_rook('b8wR','b3')#룩 아래이동
 chess.print_board()
 
