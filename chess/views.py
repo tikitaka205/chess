@@ -99,17 +99,16 @@ class Chess:
 
         self.print_board()
 
-    #move_pawn('a7bP','a6')
-    #제자리에 놓기
-    #horse vaild
-    #지금자리와 옮기는자리 같으면 안된다
-    #옮기려는 부분이 체스판 밖이 아닐까
-    #i는 변하지만 j는 변하지 않는다
-    #움직이려는 곳에 말이 있으면 안된다
-    #조건을 만족하면 움직일 것이다
+    #TODO 지금자리와 옮기는자리 같으면 안된다 #완
+    #TODO 옮기려는 부분이 체스판 밖이 아닐까 #완
+    #TODO i는 변하지만 j는 변하지 않는다 #완
+    #TODO 움직이려는 곳에 말이 있으면 안된다 #완
+    #TODO 조건을 만족하면 움직일 것이다 #완
+    #TODO 반복문으로 장애물 확인 #완
+    #TODO 공격할때와 처음움직일때의 조건 다른거 구현
+    #TODO 상대방 공격
     #들어오는 조건을 계속 생각해보자
-    #반복문으로 장애물 확인
-    #+상대방 공격
+    #move_pawn('a7bP','a6')
     def move_pawn(self, from_positon, to_position):
         if from_positon[:-2] ==to_position:
             return False
@@ -159,17 +158,14 @@ class Chess:
         else:
             return False
 
-    #TODO
-    #okay 종 횡으로 움직임
-    #okay 같은자리 움직임 금지
-    #okay 체스판 안의 범위로 이동
-    #okay 말이 없는 자리를 입력하면 말이 생김
-    #okay 말이 가는 포지션까지 다른말이 있으면 안된다
-    #공격하는 말이 나의 말이면 안된다
-    #움직이는 곳에 상대말이 있다면 제거
-    #룩은 위아래오른쪽왼쪽 다 움직일 수 있다
-
-    #move_rook
+    #TODO 종 횡으로 움직임 #완료
+    #TODO 같은자리 움직임 금지 #완료
+    #TODO 체스판 안의 범위로 이동 #완료
+    #TODO 말이 없는 자리를 입력하면 말이 생김 #완료
+    #TODO 말이 가는 포지션까지 다른말이 있으면 안된다 #완료
+    #TODO 공격하는 말이 나의 말이면 안된다
+    #TODO 움직이는 곳에 상대말이 있다면 제거
+    #TODO 룩은 위아래오른쪽왼쪽 다 움직일 수 있다
     #move_rook('a7bR','a6')
     def move_rook(self, from_positon, to_position):
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
@@ -177,8 +173,7 @@ class Chess:
         isVaild_same_positon = i_from!=i_to and j_from!=j_to
         isVaild_horizon=i_from == i_to and j_from != j_to
         isVaild_vertical=i_from != i_to and j_from == j_to
-        isVaild_is=self.board[i_from][j_from]!=EMPTY
-        isVaild=isValid_from and isValid_to and isVaild_is
+        isVaild=isValid_from and isValid_to and isVaild_same_positon
         if isVaild:
             is_ok=True
             if isVaild_horizon:
@@ -283,7 +278,7 @@ class Chess:
         print(dif_j)
         isVaild_position_1=abs(dif_i)==1 and abs(dif_j)==2
         isVaild_position_2=abs(dif_i)==2 and abs(dif_j)==1
-        isValid=isVaild_position_1 or isVaild_position_2
+        isValid=isVaild_position_1 or isVaild_position_2 and (isValid_from and isValid_to)
         if isValid:
             print("KNIGHT valid")
             print("KNIGHT move")
@@ -292,6 +287,91 @@ class Chess:
         else:
             print("KNIGHT invalid")
             return False
+
+        #TODO to_position이동시 체크가 되면 안된다
+        #TODO 여기서 같은팀 공격불가 기능 만들어보자
+        #TODO 공격 기능도 만들어보자
+    def move_king(self,from_positon, to_position):
+        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+        isValid_team=from_positon[2]
+        print(isValid_team)
+        # print(self.board[i_to][j_to][2])
+            # return print("같은팀 말")
+
+    def move_queen(self,from_positon, to_position):
+        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+        isVaild_same_positon = i_from!=i_to or j_from!=j_to
+        isVaild_horizon=i_from == i_to and j_from != j_to
+        isVaild_vertical=i_from != i_to and j_from == j_to
+        dif_i=i_to-i_from
+        dif_j=j_to-j_from
+        isValid_diagonal=abs(dif_i)==abs(dif_j)
+        isVaild=isVaild_same_positon
+        if isVaild:
+            print("isVaild",isVaild)
+            is_ok=True
+            if isVaild_horizon:
+                print("호리즌",isVaild_horizon)
+                dif=j_to-j_from
+                for i in range(1,abs(dif)+1):
+                    if i < dif:
+                        if self.board[i_from][j_from+i] != EMPTY:
+                            print("horizon 움직임 실패")
+                            is_ok=False
+                            break
+
+            elif isVaild_vertical:
+                print("버티컬",isVaild_vertical)
+                dif=i_to-i_from
+                for i in range(1,abs(dif)+1):
+                    if i > dif:
+                        if self.board[i_from-i][j_from] != EMPTY:
+                            print("i",i)
+                            print("vertical 위 움직임 실패")
+                            is_ok=False
+                            break
+                        
+            elif isValid_diagonal:
+                print("QUEEN vaild")
+                if dif_i>0 and dif_j>0:
+                    for i in range(1,abs(dif_i)+1):
+                        if self.board[i_from-i][j_from-i]!=EMPTY:
+                            is_ok=False
+                            print("QUEEN ++ move")
+                            pass
+                if dif_i<0 and dif_j>0:
+                    for i in range(1,abs(dif_i)+1):
+                        if self.board[i_from-i][j_from-i]!=EMPTY:
+                            is_ok=False
+                            print("QUEEN +- move")
+                            pass
+                if dif_i>0 and dif_j<0:
+                    for i in range(1,abs(dif_i)+1):
+                        if self.board[i_from-i][j_from-i]!=EMPTY:
+                            is_ok=False
+                            print("QUEEN -+ move")
+                            pass
+                if dif_i<0 and dif_j<0:
+                    for i in range(1,abs(dif_i)+1):
+                        if self.board[i_from-i][j_from-i]!=EMPTY:
+                            is_ok=False
+                            print("QUEEN -- move")
+                            pass
+            else:
+                print("이동가능 위치가 아닙니다")
+                return False
+
+            if is_ok==True:
+                print("QUEEN move")
+                self.board[i_from][j_from]=EMPTY
+                self.board[i_to][j_to] = from_positon[2] + QUEEN
+        else:
+            print("isVaild",isVaild)
+            print("QUEEN invaild")
+            return False
+
 
 chess=Chess()
 chess.set_game() #=Chess().print_board() 체스 클래스에 print_board()라는 함수를 실행
@@ -303,9 +383,13 @@ chess.set_game() #=Chess().print_board() 체스 클래스에 print_board()라는
 # # chess.move_rook('d3wR','b3')#룩 왼쪽이동
 # chess.move_rook('b3wR','b7'),print("말을 넘어가")#말을 넘어가는 에러
 chess.move_pawn('b2wB','b4')#폰 이동
+chess.move_pawn('e2wB','e4')#폰 이동
 chess.move_bishop('c1wB','a3')#비숍 왼쪽위 이동
 chess.move_knight('b1wN','c3')#나이트 이동
-chess.move_knight('c3wN','b4')#나이트 이동
+# chess.move_knight('c3wN','b5')#나이트 이동
+chess.move_queen('e1wQ','e3')#퀸 이동
+chess.move_queen('e3wQ','h6')#퀸 이동
+chess.move_king('e3wQ','h6')#
 # chess.move_rook('b8wR','b3')#룩 아래이동
 chess.print_board()
 
