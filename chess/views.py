@@ -144,7 +144,7 @@ class Chess:
                     print("한칸 이상 움직임")
                     return False
             if from_positon[-2]==WHITE:
-                print("WHITE")
+                # print("WHITE")
                 if dif >= -2 and dif <= -1:
                     for i in range(1, abs(dif)+1):
                         if self.board[i_from - i][j_from]!=EMPTY:
@@ -152,7 +152,7 @@ class Chess:
                         else:
                             self.board[i_from][j_from]=EMPTY
                             self.board[i_to][j_to]=from_positon[2] + PAWN
-                            print("white움직임")
+                            # print("white움직임")
                             return True
                 else:
                     return False
@@ -236,7 +236,7 @@ class Chess:
         #대각선 ++ +- -+ -- 네가지
         is_ok=True
         if isValid:
-            print("bishop vaild")
+            print("BISHOP vaild")
             #dif_i dif_j의 차이
             #dif i 가 양수면 아래로 음수면 위로
             #dif j 가 양수면 오른쪽 음수면 왼쪽
@@ -266,9 +266,32 @@ class Chess:
                         print("bishop -- move")
                         pass
         if is_ok==True:
-            print("비숍 이동")
+            print("BISHOP move")
             self.board[i_from][j_from]=EMPTY
             self.board[i_to][j_to] = from_positon[2] + BISHOP
+
+    #(b1wB,c3) +1+2 +1
+    #한칸 가고 대각선
+    #i,j 네방향 + 옆으로 두가지씩 8개의 경우의 수
+    #움직임 범위 1이상 2이하
+    def move_knight(self,from_positon, to_position):
+        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+        dif_i=i_to-i_from #종의 움직임
+        dif_j=j_to-j_from #횡의 움직임
+        print(dif_i)
+        print(dif_j)
+        isVaild_position_1=abs(dif_i)==1 and abs(dif_j)==2
+        isVaild_position_2=abs(dif_i)==2 and abs(dif_j)==1
+        isValid=isVaild_position_1 or isVaild_position_2
+        if isValid:
+            print("KNIGHT valid")
+            print("KNIGHT move")
+            self.board[i_from][j_from]=EMPTY
+            self.board[i_to][j_to] = from_positon[2] + KNIGHT
+        else:
+            print("KNIGHT invalid")
+            return False
 
 chess=Chess()
 chess.set_game() #=Chess().print_board() 체스 클래스에 print_board()라는 함수를 실행
@@ -281,6 +304,8 @@ chess.set_game() #=Chess().print_board() 체스 클래스에 print_board()라는
 # chess.move_rook('b3wR','b7'),print("말을 넘어가")#말을 넘어가는 에러
 chess.move_pawn('b2wB','b4')#폰 이동
 chess.move_bishop('c1wB','a3')#비숍 왼쪽위 이동
+chess.move_knight('b1wN','c3')#나이트 이동
+chess.move_knight('c3wN','b4')#나이트 이동
 # chess.move_rook('b8wR','b3')#룩 아래이동
 chess.print_board()
 
