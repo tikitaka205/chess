@@ -291,13 +291,21 @@ class Chess:
         #TODO to_position이동시 체크가 되면 안된다
         #TODO 여기서 같은팀 공격불가 기능 만들어보자
         #TODO 공격 기능도 만들어보자
+        #TODO 캐슬링
     def move_king(self,from_positon, to_position):
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
-        isValid_team=from_positon[2]
-        print(isValid_team)
-        # print(self.board[i_to][j_to][2])
-            # return print("같은팀 말")
+        dif_i=i_to-i_from
+        dif_j=j_to-j_from
+        isVaild_same_positon = i_from!=i_to or j_from!=j_to
+        isValid_move=abs(dif_i)<2 and abs(dif_j)<2
+        isValid=isValid_move and isVaild_same_positon
+        if isValid:
+                self.board[i_from][j_from]=EMPTY
+                self.board[i_to][j_to] = from_positon[2] + KING
+        else:
+            print("KING invalid")
+            return False
 
     def move_queen(self,from_positon, to_position):
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
@@ -389,7 +397,7 @@ chess.move_knight('b1wN','c3')#나이트 이동
 # chess.move_knight('c3wN','b5')#나이트 이동
 chess.move_queen('e1wQ','e3')#퀸 이동
 chess.move_queen('e3wQ','h6')#퀸 이동
-chess.move_king('e3wQ','h6')#
+chess.move_king('d1wQ','b1')#킹이동
 # chess.move_rook('b8wR','b3')#룩 아래이동
 chess.print_board()
 
