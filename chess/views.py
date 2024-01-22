@@ -303,6 +303,7 @@ class Chess:
         if isValid:
                 self.board[i_from][j_from]=EMPTY
                 self.board[i_to][j_to] = from_positon[2] + KING
+                return True
         else:
             print("KING invalid")
             return False
