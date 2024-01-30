@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import JoinSerializer
+from .models import User
 
 class UserView(APIView):
 
@@ -14,3 +15,12 @@ class UserView(APIView):
             return Response({"message":"가입완료"},status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        try:
+            username = request.query_params['username']
+        except KeyError:
+            return Response({'result':'Bad Request'},status=status.HTTP_400_BAD_REQUEST)
+        else:
+            flag = User.objects.filter(username = username).exists()
+            return Response({'result': flag}, status=status.HTTP_200_OK)
