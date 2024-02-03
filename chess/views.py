@@ -12,6 +12,7 @@ class ChessView(APIView):
     def get(self, request):
         """
         get chess state
+        TODO
         """
         # game_id=request.query_params.get('game_id','')
         board_state=ChessLog.objects.all()
@@ -21,9 +22,16 @@ class ChessView(APIView):
     def post(self, request):
         """
         move horse
+        TODO
+        둘다 게임시작누르면 post 게임 만듬
+        프론트 백 둘다 white black턴 검증
+        만든걸 보여주는게 웹소켓통해서?
+        말 움직이면 기록
+        지금 입력하면 상대에도 보인다 근데 그 메세지를 내가 조절이 불가 가공이
         """
         board_state=Chess().board
         # print(board_state)
+        print(request.data)
         serializer=ChessMoveSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(board_state=board_state)
