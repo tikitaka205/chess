@@ -172,7 +172,7 @@ class Chess:
     #TODO 움직이는 곳에 상대말이 있다면 제거
     #TODO 룩은 위아래오른쪽왼쪽 다 움직일 수 있다
     #move_rook('a7bR','a6')
-    def move_rook(self, from_positon, to_position):
+    def move_rook(self, from_positon, to_position, board):
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
         isVaild_same_positon = i_from!=i_to and j_from!=j_to
@@ -191,7 +191,7 @@ class Chess:
                     #6-8 =-2움직임 = 위
                     #8-6 = 2움직임 = 아래
                     if i < dif:
-                        if self.board[i_from][j_from+i] != EMPTY:
+                        if board[i_from][j_from+i] != EMPTY:
                             print("horizon 움직임 실패")
                             is_ok=False
                             break
@@ -203,7 +203,7 @@ class Chess:
                     #룩이 위로움직냐 아래로 움직이냐
                     #룩 위로 움직임
                     if i > dif:
-                        if self.board[i_from-i][j_from] != EMPTY:
+                        if board[i_from-i][j_from] != EMPTY:
                             #전부다 확인하고 그 조건이 맞으면 옮겨야함
                             #5에서 0으로 이동 dif=-5
                             #0-7범위 여기범위에서는
@@ -215,8 +215,8 @@ class Chess:
                             is_ok=False
                             break
             if is_ok:
-                    self.board[i_from][j_from]=EMPTY
-                    self.board[i_to][j_to] = from_positon[2] + ROOK
+                    board[i_from][j_from]=EMPTY
+                    board[i_to][j_to] = from_positon[2] + ROOK
         else:
             print("룩 vaild 실패")
             return False
@@ -226,7 +226,7 @@ class Chess:
     #절대값 같아야함
     #i차이 j차이가 같아야 한다
     #a1 b2 c3 d4
-    def move_bishop(self,from_positon, to_position):
+    def move_bishop(self,from_positon, to_position, board):
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
         dif_i=i_to-i_from
@@ -243,38 +243,38 @@ class Chess:
             #[i,j]=[+,+]오른쪽 아래 [+,-]왼쪽 아래 [-,+] 오른쪽 위[-,-] 왼쪽 위
             if dif_i>0 and dif_j>0:
                 for i in range(1,abs(dif_i)+1):
-                    if self.board[i_from-i][j_from-i]!=EMPTY:
+                    if board[i_from-i][j_from-i]!=EMPTY:
                         is_ok=False
                         print("bishop ++ move")
                         pass
             if dif_i<0 and dif_j>0:
                 for i in range(1,abs(dif_i)+1):
-                    if self.board[i_from-i][j_from-i]!=EMPTY:
+                    if board[i_from-i][j_from-i]!=EMPTY:
                         is_ok=False
                         print("bishop +- move")
                         pass
             if dif_i>0 and dif_j<0:
                 for i in range(1,abs(dif_i)+1):
-                    if self.board[i_from-i][j_from-i]!=EMPTY:
+                    if board[i_from-i][j_from-i]!=EMPTY:
                         is_ok=False
                         print("bishop -+ move")
                         pass
             if dif_i<0 and dif_j<0:
                 for i in range(1,abs(dif_i)+1):
-                    if self.board[i_from-i][j_from-i]!=EMPTY:
+                    if board[i_from-i][j_from-i]!=EMPTY:
                         is_ok=False
                         print("bishop -- move")
                         pass
         if is_ok==True:
             print("BISHOP move")
-            self.board[i_from][j_from]=EMPTY
-            self.board[i_to][j_to] = from_positon[2] + BISHOP
+            board[i_from][j_from]=EMPTY
+            board[i_to][j_to] = from_positon[2] + BISHOP
 
     #(b1wB,c3) +1+2 +1
     #한칸 가고 대각선
     #i,j 네방향 + 옆으로 두가지씩 8개의 경우의 수
     #움직임 범위 1이상 2이하
-    def move_knight(self,from_positon, to_position):
+    def move_knight(self,from_positon, to_position, board):
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
         dif_i=i_to-i_from #종의 움직임
@@ -287,8 +287,8 @@ class Chess:
         if isValid:
             print("KNIGHT valid")
             print("KNIGHT move")
-            self.board[i_from][j_from]=EMPTY
-            self.board[i_to][j_to] = from_positon[2] + KNIGHT
+            board[i_from][j_from]=EMPTY
+            board[i_to][j_to] = from_positon[2] + KNIGHT
         else:
             print("KNIGHT invalid")
             return False
@@ -297,7 +297,7 @@ class Chess:
         #TODO 여기서 같은팀 공격불가 기능 만들어보자
         #TODO 공격 기능도 만들어보자
         #TODO 캐슬링
-    def move_king(self,from_positon, to_position):
+    def move_king(self,from_positon, to_position, board):
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
         dif_i=i_to-i_from
@@ -306,14 +306,14 @@ class Chess:
         isValid_move=abs(dif_i)<2 and abs(dif_j)<2
         isValid=isValid_move and isVaild_same_positon
         if isValid:
-                self.board[i_from][j_from]=EMPTY
-                self.board[i_to][j_to] = from_positon[2] + KING
+                board[i_from][j_from]=EMPTY
+                board[i_to][j_to] = from_positon[2] + KING
                 return True
         else:
             print("KING invalid")
             return False
 
-    def move_queen(self,from_positon, to_position):
+    def move_queen(self,from_positon, to_position, board):
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
         isVaild_same_positon = i_from!=i_to or j_from!=j_to
@@ -331,7 +331,7 @@ class Chess:
                 dif=j_to-j_from
                 for i in range(1,abs(dif)+1):
                     if i < dif:
-                        if self.board[i_from][j_from+i] != EMPTY:
+                        if board[i_from][j_from+i] != EMPTY:
                             print("horizon 움직임 실패")
                             is_ok=False
                             break
@@ -341,7 +341,7 @@ class Chess:
                 dif=i_to-i_from
                 for i in range(1,abs(dif)+1):
                     if i > dif:
-                        if self.board[i_from-i][j_from] != EMPTY:
+                        if board[i_from-i][j_from] != EMPTY:
                             print("i",i)
                             print("vertical 위 움직임 실패")
                             is_ok=False
@@ -351,25 +351,25 @@ class Chess:
                 print("QUEEN vaild")
                 if dif_i>0 and dif_j>0:
                     for i in range(1,abs(dif_i)+1):
-                        if self.board[i_from-i][j_from-i]!=EMPTY:
+                        if board[i_from-i][j_from-i]!=EMPTY:
                             is_ok=False
                             print("QUEEN ++ move")
                             pass
                 if dif_i<0 and dif_j>0:
                     for i in range(1,abs(dif_i)+1):
-                        if self.board[i_from-i][j_from-i]!=EMPTY:
+                        if board[i_from-i][j_from-i]!=EMPTY:
                             is_ok=False
                             print("QUEEN +- move")
                             pass
                 if dif_i>0 and dif_j<0:
                     for i in range(1,abs(dif_i)+1):
-                        if self.board[i_from-i][j_from-i]!=EMPTY:
+                        if board[i_from-i][j_from-i]!=EMPTY:
                             is_ok=False
                             print("QUEEN -+ move")
                             pass
                 if dif_i<0 and dif_j<0:
                     for i in range(1,abs(dif_i)+1):
-                        if self.board[i_from-i][j_from-i]!=EMPTY:
+                        if board[i_from-i][j_from-i]!=EMPTY:
                             is_ok=False
                             print("QUEEN -- move")
                             pass
@@ -379,8 +379,8 @@ class Chess:
 
             if is_ok==True:
                 print("QUEEN move")
-                self.board[i_from][j_from]=EMPTY
-                self.board[i_to][j_to] = from_positon[2] + QUEEN
+                board[i_from][j_from]=EMPTY
+                board[i_to][j_to] = from_positon[2] + QUEEN
         else:
             print("isVaild",isVaild)
             print("QUEEN invaild")
