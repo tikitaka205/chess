@@ -5,6 +5,10 @@ from channels.generic.websocket import WebsocketConsumer
 # from .models import ChessLog
 # from rest_framework import status
 from chess.chess_logic import Chess
+import ast
+import json
+import re
+
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -27,6 +31,7 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     #상대가 보내면 바로 나에게 보임
     def receive(self, text_data):
+        print(text_data)
         text_data_json = json.loads(text_data)
         if text_data_json["type"]=="message":
             message = text_data_json["message"]
@@ -35,10 +40,47 @@ class ChatConsumer(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {"type": "chat.message", "message": message,"type_name":"message"}
             )
+
+        #move_pawn('a7bP','a6')
+        #          'a7bP','a6'
+            # board_state = [['bR', 'bN', 'bB', 'bK', 'bQ', 'bB', 'bN', 'bR'], 
+            #   ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'], 
+            #   ['00', '00', '00', '00', '00', '00', '00', '00'], 
+            #   ['00', '00', '00', '00', '00', '00', '00', '00'], 
+            #   ['00', '00', '00', '00', '00', '00', '00', '00'], 
+            #   ['00', '00', '00', '00', '00', '00', '00', '00'], 
+            #   ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'], 
+            #   ['wR', 'wN', 'wB', 'wK', 'wQ', 'wB', 'wN', 'wR']]
+
         if text_data_json["type"]=="horse":
-            print("text_data_json",text_data_json)
-            print("board_state",board_state)
-            board_state=str(Chess().board)
+            horse = text_data_json["horse"]
+            board_2 = text_data_json["board"]
+
+            #preprocessing for parsing
+            #[부터 시작해서 끝에 ]인데 왜 성공?
+            board_make_flag = board_2.replace('[[','.[')
+            board_make_flag_2 = board_make_flag.replace(']]','].')
+            pattern = re.compile(r"\[.*?\]")
+            data_list_strs = re.findall(pattern, board_make_flag_2)
+            board_state = [eval(lst) for lst in data_list_strs]
+
+            #preprocessing for horse move
+            pattern = re.compile(r'([a-h][1-8][a-h][A-Z])|([a-h][1-8])')
+            matches = pattern.findall(horse)
+            horse_move = ["".join(match) for match in matches if any(match)]
+            # print("horse_move",horse_move)
+            # print("horse_move",horse_move[0])
+            # print("horse_move",horse_move[1])
+            from_positon=horse_move[0]
+            to_position=horse_move[1]
+
+            #move horse
+            # Chess_game=Chess()
+            result=Chess().move_pawn(from_positon,to_position,board_state)
+            board_state=result[1]
+            print("result",result)
+            print("result",result[1])
+
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {"type": "chat.message", "board_state":board_state,"type_name":"board_state"}
             )
@@ -47,7 +89,7 @@ class ChatConsumer(WebsocketConsumer):
     # 이것도 같은 내용으로 뜸
     def chat_message(self, event):
         if event["type_name"]=="board_state":
-            print("board_state 에서 event",event)
+            # print("board_state 에서 event",event)
             board_state = event["board_state"]
             type_name = event["type_name"]
             self.send(text_data=json.dumps({"board_state": board_state,"type_name":type_name}))

@@ -31,11 +31,10 @@ class ChessView(APIView):
         """
         board_state=Chess().board
         # print(board_state)
-        print(request.data)
         serializer=ChessMoveSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(board_state=board_state)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"board_state":board_state},status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         # move=request.data.get('move')

@@ -16,8 +16,7 @@ class Chess:
     def __init__(self):
         self.board=[]
         self.create_board()
-        # self.set_game()
-        self.print_board()
+        self.set_game()
 
     def create_board(self):
         for i in range(chess_board_cells):
@@ -25,6 +24,9 @@ class Chess:
             for s in range(chess_board_cells):
                 row.append(EMPTY)
             self.board.append(row)
+
+        self.set_game()
+        print("create_board")
 
     def print_board(self):
         for i in range(chess_board_cells):
@@ -110,19 +112,19 @@ class Chess:
     #TODO 상대방 공격
     #들어오는 조건을 계속 생각해보자
     #move_pawn('a7bP','a6')
-    def move_pawn(self, from_positon, to_position):
+    def move_pawn(self, from_positon, to_position, board):
         if from_positon[:-2] ==to_position:
             return False
         isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
         isJPositionSame=j_from==j_to
         isIPositionSame=i_from!=i_to
-        isGoPositonEmpty=self.board[i_to][j_to]==EMPTY
+        isGoPositonEmpty=board[i_to][j_to]==EMPTY
         isValid = isValid_to and isValid_from and isJPositionSame and isIPositionSame and isGoPositonEmpty
         print("move_pawn", i_from, j_from, i_to, j_to) #여기서 i j 는 실제 0,0을 의미
         if isValid:
             dif=i_to-i_from
-            # print("dif",dif)
+            print("valid")
             if from_positon[-2]==BLACK:
                 print("black")
                 if dif >= 1 and dif <= 2: #if=1 or 2 로 해도 될듯?
@@ -130,16 +132,17 @@ class Chess:
                     #앞에 말이 막고있는지 확인
                     # is_okay=True
                     for i in range(1, dif+1): #항상 그냥 숫자만 적지말고 연관된 숫자를 활용하자
-                        if self.board[i_from + i][j_from]!=EMPTY:
+                        if board[i_from + i][j_from]!=EMPTY:
                             # is_okay=False
                             # break
                             return False
                         else:
-                            self.board[i_from][j_from]=EMPTY
+                            board[i_from][j_from]=EMPTY
                             print("원래있던 자리 지움")
-                            self.board[i_to][j_to]=from_positon[2] + PAWN
+                            board[i_to][j_to]=from_positon[2] + PAWN
                             print("제대로 움직임")
-                            return True
+                            print(board)
+                            return True, board
                 else:
                     print("한칸 이상 움직임")
                     return False
@@ -147,16 +150,17 @@ class Chess:
                 # print("WHITE")
                 if dif >= -2 and dif <= -1:
                     for i in range(1, abs(dif)+1):
-                        if self.board[i_from - i][j_from]!=EMPTY:
+                        if board[i_from - i][j_from]!=EMPTY:
                             return False
                         else:
-                            self.board[i_from][j_from]=EMPTY
-                            self.board[i_to][j_to]=from_positon[2] + PAWN
+                            board[i_from][j_from]=EMPTY
+                            board[i_to][j_to]=from_positon[2] + PAWN
                             # print("white움직임")
-                            return True
+                            return True, board
                 else:
                     return False
         else:
+            print("invalid")
             return False
 
     #TODO 종 횡으로 움직임 #완료
