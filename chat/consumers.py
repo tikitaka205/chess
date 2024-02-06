@@ -31,27 +31,18 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     #상대가 보내면 바로 나에게 보임
     def receive(self, text_data):
-        print(text_data)
+        # print(text_data)
         text_data_json = json.loads(text_data)
+        text_data_json["player"]
         if text_data_json["type"]=="message":
             message = text_data_json["message"]
-            print("receive에서메세지",message)
-            print("receive에서메세지",text_data_json)
+            # print("receive에서메세지",message)
+            # print("receive에서메세지",text_data_json)
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {"type": "chat.message", "message": message,"type_name":"message"}
             )
 
-        #move_pawn('a7bP','a6')
         #          'a7bP','a6'
-            # board_state = [['bR', 'bN', 'bB', 'bK', 'bQ', 'bB', 'bN', 'bR'], 
-            #   ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'], 
-            #   ['00', '00', '00', '00', '00', '00', '00', '00'], 
-            #   ['00', '00', '00', '00', '00', '00', '00', '00'], 
-            #   ['00', '00', '00', '00', '00', '00', '00', '00'], 
-            #   ['00', '00', '00', '00', '00', '00', '00', '00'], 
-            #   ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'], 
-            #   ['wR', 'wN', 'wB', 'wK', 'wQ', 'wB', 'wN', 'wR']]
-
         if text_data_json["type"]=="horse":
             horse = text_data_json["horse"]
             board_2 = text_data_json["board"]
@@ -68,18 +59,20 @@ class ChatConsumer(WebsocketConsumer):
             pattern = re.compile(r'([a-h][1-8][a-h][A-Z])|([a-h][1-8])')
             matches = pattern.findall(horse)
             horse_move = ["".join(match) for match in matches if any(match)]
+            from_positon=horse_move[0]
+            to_position=horse_move[1]
+            horse_color=horse_move[0][2]
             # print("horse_move",horse_move)
             # print("horse_move",horse_move[0])
             # print("horse_move",horse_move[1])
-            from_positon=horse_move[0]
-            to_position=horse_move[1]
+            # print("horse_color",horse_color)
+            # print(board_state)
 
-            #move horse
-            # Chess_game=Chess()
-            result=Chess().move_pawn(from_positon,to_position,board_state)
-            board_state=result[1]
-            print("result",result)
-            print("result",result[1])
+            if horse_color=="b":
+                result=Chess.move_pawn(from_positon,to_position,board_state)
+                board_state=result[1]
+                print(result)
+                print(board_state)
 
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {"type": "chat.message", "board_state":board_state,"type_name":"board_state"}

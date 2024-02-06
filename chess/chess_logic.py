@@ -15,17 +15,17 @@ WHITE='w'
 class Chess:
     def __init__(self):
         self.board=[]
-        self.create_board()
-        self.set_game()
 
     def create_board(self):
-        for i in range(chess_board_cells):
-            row=[]
-            for s in range(chess_board_cells):
-                row.append(EMPTY)
-            self.board.append(row)
-
-        self.set_game()
+        board=[]
+        if not self.board:
+            for i in range(chess_board_cells):
+                row=[]
+                for s in range(chess_board_cells):
+                    row.append(EMPTY)
+                board.append(row)
+        self.board=board
+        # self.set_game()
         print("create_board")
 
     def print_board(self):
@@ -38,7 +38,8 @@ class Chess:
         for i in range(chess_board_cells):
             for s in range(chess_board_cells):
                 self.board[i][s]=EMPTY
-
+                
+    @classmethod
     def is_valid_position_str(self,position_str):
         if len(position_str)!=2:
             print("not two digits of string. check your input")
@@ -52,6 +53,7 @@ class Chess:
     #x축 알파벳 y축 숫자 
     #transform a7->i=0 j=6
     #사람들이 보트판 보고 a7하면 여기서는 ij로 바꾸고 수정함 00부터 시작 00 01 02
+    @classmethod
     def transform_str_to_num(self, position_str):
         if self.is_valid_position_str(position_str):
             i=chess_board_cells-int(position_str[1])
@@ -73,6 +75,7 @@ class Chess:
 
     #모든 말 세팅
     def set_game(self):
+        print("set_game")
         self.set_cell('a1',WHITE+ROOK)
         self.set_cell('b1',WHITE+KNIGHT)
         self.set_cell('c1',WHITE+BISHOP)
@@ -112,11 +115,12 @@ class Chess:
     #TODO 상대방 공격
     #들어오는 조건을 계속 생각해보자
     #move_pawn('a7bP','a6')
-    def move_pawn(self, from_positon, to_position, board):
+    @classmethod
+    def move_pawn(cls, from_positon, to_position, board):
         if from_positon[:-2] ==to_position:
             return False
-        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
-        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+        isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isJPositionSame=j_from==j_to
         isIPositionSame=i_from!=i_to
         isGoPositonEmpty=board[i_to][j_to]==EMPTY

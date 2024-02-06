@@ -29,8 +29,12 @@ class ChessView(APIView):
         말 움직이면 기록
         지금 입력하면 상대에도 보인다 근데 그 메세지를 내가 조절이 불가 가공이
         """
-        board_state=Chess().board
-        # print(board_state)
+        chess_instance=Chess()
+        chess_instance.create_board()
+        chess_instance.set_game()
+        board_state=chess_instance.board
+        print("post")
+        # print(board_state2.board)
         serializer=ChessMoveSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(board_state=board_state)
