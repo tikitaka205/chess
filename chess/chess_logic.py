@@ -40,7 +40,7 @@ class Chess:
                 self.board[i][s]=EMPTY
                 
     @classmethod
-    def is_valid_position_str(self,position_str):
+    def is_valid_position_str(cls,position_str):
         if len(position_str)!=2:
             print("not two digits of string. check your input")
             return False
@@ -54,8 +54,8 @@ class Chess:
     #transform a7->i=0 j=6
     #사람들이 보트판 보고 a7하면 여기서는 ij로 바꾸고 수정함 00부터 시작 00 01 02
     @classmethod
-    def transform_str_to_num(self, position_str):
-        if self.is_valid_position_str(position_str):
+    def transform_str_to_num(cls, position_str):
+        if cls.is_valid_position_str(position_str):
             i=chess_board_cells-int(position_str[1])
             j=ord(position_str[0])-ord('a')
             # print("j",j)
@@ -176,9 +176,10 @@ class Chess:
     #TODO 움직이는 곳에 상대말이 있다면 제거
     #TODO 룩은 위아래오른쪽왼쪽 다 움직일 수 있다
     #move_rook('a7bR','a6')
-    def move_rook(self, from_positon, to_position, board):
-        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
-        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+    @classmethod
+    def move_rook(cls, from_positon, to_position, board):
+        isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isVaild_same_positon = i_from!=i_to and j_from!=j_to
         isVaild_horizon=i_from == i_to and j_from != j_to
         isVaild_vertical=i_from != i_to and j_from == j_to
@@ -230,9 +231,11 @@ class Chess:
     #절대값 같아야함
     #i차이 j차이가 같아야 한다
     #a1 b2 c3 d4
-    def move_bishop(self,from_positon, to_position, board):
-        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
-        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+
+    @classmethod
+    def move_bishop(cls,from_positon, to_position, board):
+        isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         dif_i=i_to-i_from
         dif_j=j_to-j_from
         isValid_diagonal=abs(dif_i)==abs(dif_j)
@@ -245,42 +248,61 @@ class Chess:
             #dif i 가 양수면 아래로 음수면 위로
             #dif j 가 양수면 오른쪽 음수면 왼쪽
             #[i,j]=[+,+]오른쪽 아래 [+,-]왼쪽 아래 [-,+] 오른쪽 위[-,-] 왼쪽 위
+            #위왼쪽 이동
             if dif_i>0 and dif_j>0:
                 for i in range(1,abs(dif_i)+1):
                     if board[i_from-i][j_from-i]!=EMPTY:
                         is_ok=False
                         print("bishop ++ move")
                         pass
-            if dif_i<0 and dif_j>0:
+                    else:
+                        print("bishop ++ move 통과")
+                        pass
+            #위오른쪽 이동
+            elif dif_i<0 and dif_j>0:
                 for i in range(1,abs(dif_i)+1):
-                    if board[i_from-i][j_from-i]!=EMPTY:
+                    if board[i_from-i][j_from+i]!=EMPTY:
                         is_ok=False
                         print("bishop +- move")
                         pass
-            if dif_i>0 and dif_j<0:
+                    else:
+                        print("bishop +- move 통과")
+                        pass
+            #왼쪽아래 이동
+            elif dif_i>0 and dif_j<0:
                 for i in range(1,abs(dif_i)+1):
-                    if board[i_from-i][j_from-i]!=EMPTY:
+                    if board[i_from+i][j_from-i]!=EMPTY:
                         is_ok=False
                         print("bishop -+ move")
                         pass
-            if dif_i<0 and dif_j<0:
+                    else:
+                        print("bishop -+ move 통과")
+                        pass
+            #왼쪽위 이동
+            elif dif_i<0 and dif_j<0:
                 for i in range(1,abs(dif_i)+1):
                     if board[i_from-i][j_from-i]!=EMPTY:
                         is_ok=False
                         print("bishop -- move")
                         pass
+                    else:
+                        print("bishop -- move 통과")
+                        pass
+            # else:
+            #     pass
         if is_ok==True:
             print("BISHOP move")
             board[i_from][j_from]=EMPTY
             board[i_to][j_to] = from_positon[2] + BISHOP
+            return True, board
 
     #(b1wB,c3) +1+2 +1
     #한칸 가고 대각선
     #i,j 네방향 + 옆으로 두가지씩 8개의 경우의 수
     #움직임 범위 1이상 2이하
-    def move_knight(self,from_positon, to_position, board):
-        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
-        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+    def move_knight(cls,from_positon, to_position, board):
+        isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         dif_i=i_to-i_from #종의 움직임
         dif_j=j_to-j_from #횡의 움직임
         print(dif_i)
@@ -301,9 +323,9 @@ class Chess:
         #TODO 여기서 같은팀 공격불가 기능 만들어보자
         #TODO 공격 기능도 만들어보자
         #TODO 캐슬링
-    def move_king(self,from_positon, to_position, board):
-        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
-        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+    def move_king(cls,from_positon, to_position, board):
+        isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         dif_i=i_to-i_from
         dif_j=j_to-j_from
         isVaild_same_positon = i_from!=i_to or j_from!=j_to
@@ -317,9 +339,9 @@ class Chess:
             print("KING invalid")
             return False
 
-    def move_queen(self,from_positon, to_position, board):
-        isValid_from, i_from, j_from=self.transform_str_to_num(from_positon[:2])
-        isValid_to, i_to, j_to=self.transform_str_to_num(to_position)
+    def move_queen(cls,from_positon, to_position, board):
+        isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isVaild_same_positon = i_from!=i_to or j_from!=j_to
         isVaild_horizon=i_from == i_to and j_from != j_to
         isVaild_vertical=i_from != i_to and j_from == j_to
