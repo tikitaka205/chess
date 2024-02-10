@@ -56,12 +56,12 @@ class ChatConsumer(WebsocketConsumer):
             board_state = [eval(lst) for lst in data_list_strs]
 
             #preprocessing for horse move
-            pattern = re.compile(r'([a-h][1-8][a-h][A-Z])|([a-h][1-8])')
+            pattern = re.compile(r'([a-z][1-8][a-z][A-Z])|([a-z][1-8])')
             matches = pattern.findall(horse)
             horse_move = ["".join(match) for match in matches if any(match)]
             from_positon=horse_move[0]
             to_position=horse_move[1]
-            horse_color=horse_move[0][2]
+            # horse_color=horse_move[0][2]
             horse_type=horse_move[0][3]
             # print("horse_move",horse_move)
             # print("horse_move",horse_move[0])
@@ -72,9 +72,11 @@ class ChatConsumer(WebsocketConsumer):
             #룸번호 유저
             #룸번호로 방 플레이어, 턴 보고 응답
             #체스
-            print(horse_type)
+            print("horse_move",horse_move)
+            print("horse_move",horse_type)
 #          'b7bP','b6'
 #          'c8bB','a6'
+#          'b1wN','c3'
             if horse_type=="P":
                 result=Chess.move_pawn(from_positon,to_position,board_state)
                 board_state=result[1]
@@ -91,6 +93,14 @@ class ChatConsumer(WebsocketConsumer):
                 print(result)
                 print("board_state",board_state)
 
+            elif horse_type=="N":
+                result=Chess.move_knight(from_positon,to_position,board_state)
+                board_state=result[1]
+                alarm=result[2]
+                print(alarm)
+                print(result)
+                print("board_state",board_state)
+                
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {"type": "chat.message", "board_state":board_state, "alarm":alarm ,"type_name":"board_state"}
             )

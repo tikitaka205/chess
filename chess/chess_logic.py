@@ -304,35 +304,40 @@ class Chess:
             print("BISHOP move")
             board[i_from][j_from]=EMPTY
             board[i_to][j_to] = from_positon[2] + BISHOP
-            return True, board
+            return True, board, f"{j_to},{i_to}로 이동"
 
-    #(b1wB,c3) +1+2 +1
+
+    #'b2wN,c3' +1+2 +1
     #한칸 가고 대각선
     #i,j 네방향 + 옆으로 두가지씩 8개의 경우의 수
     #움직임 범위 1이상 2이하
+    @classmethod
     def move_knight(cls,from_positon, to_position, board):
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         dif_i=i_to-i_from #종의 움직임
         dif_j=j_to-j_from #횡의 움직임
-        print(dif_i)
-        print(dif_j)
+        isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
         isVaild_position_1=abs(dif_i)==1 and abs(dif_j)==2
         isVaild_position_2=abs(dif_i)==2 and abs(dif_j)==1
-        isValid=isVaild_position_1 or isVaild_position_2 and (isValid_from and isValid_to)
+        isValid=isVaild_position_1 or isVaild_position_2 and (isValid_from and isValid_to and isValid_pick_horse)
         if isValid:
             print("KNIGHT valid")
             print("KNIGHT move")
             board[i_from][j_from]=EMPTY
             board[i_to][j_to] = from_positon[2] + KNIGHT
+            return True, board, f"{j_to},{i_to}로 이동"
         else:
             print("KNIGHT invalid")
-            return False
+            return False, board, "check your position"
 
         #TODO to_position이동시 체크가 되면 안된다
         #TODO 여기서 같은팀 공격불가 기능 만들어보자
         #TODO 공격 기능도 만들어보자
         #TODO 캐슬링
+
+
+    @classmethod
     def move_king(cls,from_positon, to_position, board):
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
@@ -349,6 +354,7 @@ class Chess:
             print("KING invalid")
             return False
 
+    @classmethod
     def move_queen(cls,from_positon, to_position, board):
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
