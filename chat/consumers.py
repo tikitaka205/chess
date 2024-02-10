@@ -83,8 +83,8 @@ class ChatConsumer(WebsocketConsumer):
 
             elif horse_type=="B":
                 result=Chess.move_bishop(from_positon,to_position,board_state)
-                print(result)
                 board_state=result[1]
+                print(result)
                 print("board_state",board_state)
 
             async_to_sync(self.channel_layer.group_send)(

@@ -63,7 +63,13 @@ class Chess:
             return True, i, j
         else:
             return False,0,0
-    
+
+    # @classmethod
+    # def vaild_pick_horse(cls, from_positon, to_position, board):
+    #     isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
+    #     isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
+    #     board[i_from][j_from]=from_positon[2:]
+
     #말 위치와 타입이 유효하다면 세팅
     def set_cell(self,position_str,horse_type_str):
         isVaild, i, j=self.transform_str_to_num(position_str)
@@ -236,10 +242,13 @@ class Chess:
     def move_bishop(cls,from_positon, to_position, board):
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
+        isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
+        print("isValid_pick_horse",isValid_pick_horse)
+        print("from_positon[2:]",from_positon[2:])
         dif_i=i_to-i_from
         dif_j=j_to-j_from
         isValid_diagonal=abs(dif_i)==abs(dif_j)
-        isValid=isValid_from and isValid_to and isValid_diagonal
+        isValid=isValid_from and isValid_to and isValid_diagonal and isValid_pick_horse
         #대각선 ++ +- -+ -- 네가지
         is_ok=True
         if isValid:
@@ -288,8 +297,8 @@ class Chess:
                     else:
                         print("bishop -- move 통과")
                         pass
-            # else:
-            #     pass
+        else:
+            return False, board, "check your position"
         if is_ok==True:
             print("BISHOP move")
             board[i_from][j_from]=EMPTY
