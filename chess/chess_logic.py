@@ -130,7 +130,8 @@ class Chess:
         isJPositionSame=j_from==j_to
         isIPositionSame=i_from!=i_to
         isGoPositonEmpty=board[i_to][j_to]==EMPTY
-        isValid = isValid_to and isValid_from and isJPositionSame and isIPositionSame and isGoPositonEmpty
+        isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
+        isValid = isValid_to and isValid_from and isJPositionSame and isIPositionSame and isGoPositonEmpty and isValid_pick_horse
         print("move_pawn", i_from, j_from, i_to, j_to) #여기서 i j 는 실제 0,0을 의미
         if isValid:
             dif=i_to-i_from
@@ -145,14 +146,14 @@ class Chess:
                         if board[i_from + i][j_from]!=EMPTY:
                             # is_okay=False
                             # break
-                            return False
+                            return True, board, "can't move position"
                         else:
                             board[i_from][j_from]=EMPTY
                             print("원래있던 자리 지움")
                             board[i_to][j_to]=from_positon[2] + PAWN
                             print("제대로 움직임")
                             print(board)
-                            return True, board
+                            return True, board, f"{j_to},{i_to}로 이동"
                 else:
                     print("한칸 이상 움직임")
                     return False
@@ -161,17 +162,17 @@ class Chess:
                 if dif >= -2 and dif <= -1:
                     for i in range(1, abs(dif)+1):
                         if board[i_from - i][j_from]!=EMPTY:
-                            return False
+                            return False, board, "can't move position"
                         else:
                             board[i_from][j_from]=EMPTY
                             board[i_to][j_to]=from_positon[2] + PAWN
                             # print("white움직임")
-                            return True, board
+                            return True, board, f"{j_to},{i_to}로 이동"
                 else:
                     return False
         else:
             print("invalid")
-            return False
+            return False, board, "check your position"
 
     #TODO 종 횡으로 움직임 #완료
     #TODO 같은자리 움직임 금지 #완료

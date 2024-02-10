@@ -78,17 +78,21 @@ class ChatConsumer(WebsocketConsumer):
             if horse_type=="P":
                 result=Chess.move_pawn(from_positon,to_position,board_state)
                 board_state=result[1]
+                alarm=result[2]
+                print(alarm)
                 print(result)
                 print(board_state)
 
             elif horse_type=="B":
                 result=Chess.move_bishop(from_positon,to_position,board_state)
                 board_state=result[1]
+                alarm=result[2]
+                print(alarm)
                 print(result)
                 print("board_state",board_state)
 
             async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name, {"type": "chat.message", "board_state":board_state,"type_name":"board_state"}
+                self.room_group_name, {"type": "chat.message", "board_state":board_state, "alarm":alarm ,"type_name":"board_state"}
             )
 
     # Receive message from room group
@@ -98,7 +102,8 @@ class ChatConsumer(WebsocketConsumer):
             # print("board_state 에서 event",event)
             board_state = event["board_state"]
             type_name = event["type_name"]
-            self.send(text_data=json.dumps({"board_state": board_state,"type_name":type_name}))
+            alarm = event["alarm"]
+            self.send(text_data=json.dumps({"board_state": board_state,"type_name":type_name,"alarm":alarm}))
         if event["type_name"]=="message":
             message = event["message"]
             type_name = event["type_name"]
