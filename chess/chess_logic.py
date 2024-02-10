@@ -187,10 +187,17 @@ class Chess:
     def move_rook(cls, from_positon, to_position, board):
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
-        isVaild_same_positon = i_from!=i_to and j_from!=j_to
+        isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
+        isVaild_same_positon = i_from!=i_to or j_from!=j_to
         isVaild_horizon=i_from == i_to and j_from != j_to
         isVaild_vertical=i_from != i_to and j_from == j_to
-        isVaild=isValid_from and isValid_to and isVaild_same_positon
+        isVaild=isValid_from and isValid_to and isVaild_same_positon and isValid_pick_horse
+        print(board[i_from][j_from])
+        print(from_positon[2:])
+        print(isValid_pick_horse)
+        print(isValid_from)
+        print(isValid_to)
+        print(isVaild_same_positon)
         if isVaild:
             is_ok=True
             if isVaild_horizon:
@@ -229,9 +236,10 @@ class Chess:
             if is_ok:
                     board[i_from][j_from]=EMPTY
                     board[i_to][j_to] = from_positon[2] + ROOK
+                    return True, board, f"{j_to},{i_to}로 이동"
         else:
             print("룩 vaild 실패")
-            return False
+            return False, board, "check your position"
 
     #같은자리 금지
     #대각선 다른말의 유무

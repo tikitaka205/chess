@@ -61,8 +61,8 @@ class ChatConsumer(WebsocketConsumer):
             horse_move = ["".join(match) for match in matches if any(match)]
             from_positon=horse_move[0]
             to_position=horse_move[1]
-            # horse_color=horse_move[0][2]
             horse_type=horse_move[0][3]
+            # horse_color=horse_move[0][2]
             # print("horse_move",horse_move)
             # print("horse_move",horse_move[0])
             # print("horse_move",horse_move[1])
@@ -74,9 +74,11 @@ class ChatConsumer(WebsocketConsumer):
             #체스
             print("horse_move",horse_move)
             print("horse_move",horse_type)
-#          'b7bP','b6'
+#          'a7bP','a5'
 #          'c8bB','a6'
 #          'b1wN','c3'
+#          'a8bR','a6'
+
             if horse_type=="P":
                 result=Chess.move_pawn(from_positon,to_position,board_state)
                 board_state=result[1]
@@ -100,7 +102,15 @@ class ChatConsumer(WebsocketConsumer):
                 print(alarm)
                 print(result)
                 print("board_state",board_state)
-                
+
+            elif horse_type=="R":
+                result=Chess.move_rook(from_positon,to_position,board_state)
+                board_state=result[1]
+                alarm=result[2]
+                print(alarm)
+                print(result)
+                print("board_state",board_state)
+
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {"type": "chat.message", "board_state":board_state, "alarm":alarm ,"type_name":"board_state"}
             )
