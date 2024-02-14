@@ -137,7 +137,7 @@ class Chess:
             dif=i_to-i_from
             print("valid")
             if from_positon[-2]==BLACK:
-                print("black")
+                # print("black")
                 if dif >= 1 and dif <= 2: #if=1 or 2 로 해도 될듯?
                     # print("1,2칸 움직임")
                     #앞에 말이 막고있는지 확인
@@ -146,7 +146,7 @@ class Chess:
                         if board[i_from + i][j_from]!=EMPTY:
                             # is_okay=False
                             # break
-                            return True, board, "can't move position"
+                            return False, board, "can't move position"
                         else:
                             board[i_from][j_from]=EMPTY
                             print("원래있던 자리 지움")
@@ -353,30 +353,40 @@ class Chess:
     def move_king(cls,from_positon, to_position, board):
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
+        isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
         dif_i=i_to-i_from
         dif_j=j_to-j_from
         isVaild_same_positon = i_from!=i_to or j_from!=j_to
         isValid_move=abs(dif_i)<2 and abs(dif_j)<2
-        isValid=isValid_move and isVaild_same_positon
+        isValid=isValid_move and isVaild_same_positon and isValid_pick_horse and isValid_from and isValid_to
         if isValid:
-                board[i_from][j_from]=EMPTY
-                board[i_to][j_to] = from_positon[2] + KING
-                return True
+            board[i_from][j_from]=EMPTY
+            board[i_to][j_to] = from_positon[2] + KING
+            return True, board, f"{j_to},{i_to}로 이동"
         else:
+            print("KING isValid_move",isValid_move)
+            print("KING isVaild_same_positon",isVaild_same_positon)
+            print("KING isValid_pick_horse",isValid_pick_horse)
+            print(board)
+            print(board[i_from][j_from])
+            print(i_from)
+            print(j_from)
+            print(from_positon[2:])
             print("KING invalid")
-            return False
+            return False, board, "check your position"
 
     @classmethod
     def move_queen(cls,from_positon, to_position, board):
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isVaild_same_positon = i_from!=i_to or j_from!=j_to
+        isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
         isVaild_horizon=i_from == i_to and j_from != j_to
         isVaild_vertical=i_from != i_to and j_from == j_to
         dif_i=i_to-i_from
         dif_j=j_to-j_from
         isValid_diagonal=abs(dif_i)==abs(dif_j)
-        isVaild=isVaild_same_positon
+        isVaild=isVaild_same_positon and isValid_pick_horse
         if isVaild:
             print("isVaild",isVaild)
             is_ok=True
@@ -429,16 +439,21 @@ class Chess:
                             pass
             else:
                 print("이동가능 위치가 아닙니다")
-                return False
+                return False, board, "check your position"
 
             if is_ok==True:
                 print("QUEEN move")
                 board[i_from][j_from]=EMPTY
                 board[i_to][j_to] = from_positon[2] + QUEEN
+                return True, board, f"{j_to},{i_to}로 이동"
+            else:
+                print('is_okay=false')
+                return False, board, "check your position"
+
         else:
             print("isVaild",isVaild)
             print("QUEEN invaild")
-            return False
+            return False, board, "check your position"
 
 
 # chess=Chess()
