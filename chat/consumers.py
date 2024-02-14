@@ -59,21 +59,18 @@ class ChatConsumer(WebsocketConsumer):
             pattern = re.compile(r'([a-z][1-8][a-z][A-Z])|([a-z][1-8])')
             matches = pattern.findall(horse)
             horse_move = ["".join(match) for match in matches if any(match)]
-            from_positon=horse_move[0]
-            to_position=horse_move[1]
-            horse_type=horse_move[0][3]
-            # horse_color=horse_move[0][2]
-            # print("horse_move",horse_move)
-            # print("horse_move",horse_move[0])
-            # print("horse_move",horse_move[1])
-            # print("horse_color",horse_color)
-            # print(board_state)
+
+            print("horse",horse)
+            print("horse",horse[0])
+            print("horse",len(horse))
+            print("horse_move",horse_move)
+            # print("horse_move",horse_type)
+            is_valid_input_str = Chess.is_valid_input_str(horse)
+            print(is_valid_input_str)
             
             #룸번호 유저
             #룸번호로 방 플레이어, 턴 보고 응답
             #체스
-            print("horse_move",horse_move)
-            print("horse_move",horse_type)
 #           'a7bP','a5'
 #           'c8bB','a6'
 #           'b1wN','c3'
@@ -82,54 +79,61 @@ class ChatConsumer(WebsocketConsumer):
 #           'e2wP','e4'
 #           'e1wQ','e3'          퀸
 #           'd1wK','e2'          킹
-            if horse_type=="P":
-                result=Chess.move_pawn(from_positon,to_position,board_state)
-                board_state=result[1]
-                alarm=result[2]
-                print(alarm)
-                print(result)
-                print(board_state)
+            if is_valid_input_str:
 
-            elif horse_type=="B":
-                result=Chess.move_bishop(from_positon,to_position,board_state)
-                board_state=result[1]
-                alarm=result[2]
-                print("alarm",alarm)
-                print("result",result)
-                print("board_state",board_state)
+                from_positon=horse_move[0]
+                to_position=horse_move[1]
+                horse_type=horse_move[0][3]
 
-            elif horse_type=="N":
-                result=Chess.move_knight(from_positon,to_position,board_state)
-                board_state=result[1]
-                alarm=result[2]
-                print(alarm)
-                print(result)
-                print("board_state",board_state)
+                if horse_type=="P":
+                    result=Chess.move_pawn(from_positon,to_position,board_state)
+                    board_state=result[1]
+                    alarm=result[2]
+                    print(alarm)
+                    print(result)
+                    print(board_state)
 
-            elif horse_type=="R":
-                result=Chess.move_rook(from_positon,to_position,board_state)
-                board_state=result[1]
-                alarm=result[2]
-                print(alarm)
-                print(result)
-                print("board_state",board_state)
+                elif horse_type=="B":
+                    result=Chess.move_bishop(from_positon,to_position,board_state)
+                    board_state=result[1]
+                    alarm=result[2]
+                    print("alarm",alarm)
+                    print("result",result)
+                    print("board_state",board_state)
 
-            elif horse_type=="K":
-                result=Chess.move_king(from_positon,to_position,board_state)
-                board_state=result[1]
-                alarm=result[2]
-                print(alarm)
-                print(result)
-                print("board_state",board_state)
+                elif horse_type=="N":
+                    result=Chess.move_knight(from_positon,to_position,board_state)
+                    board_state=result[1]
+                    alarm=result[2]
+                    print(alarm)
+                    print(result)
+                    print("board_state",board_state)
 
-            elif horse_type=="Q":
-                result=Chess.move_queen(from_positon,to_position,board_state)
-                board_state=result[1]
-                alarm=result[2]
-                print(alarm)
-                print(result)
-                print("board_state",board_state)
+                elif horse_type=="R":
+                    result=Chess.move_rook(from_positon,to_position,board_state)
+                    board_state=result[1]
+                    alarm=result[2]
+                    print(alarm)
+                    print(result)
+                    print("board_state",board_state)
 
+                elif horse_type=="K":
+                    result=Chess.move_king(from_positon,to_position,board_state)
+                    board_state=result[1]
+                    alarm=result[2]
+                    print(alarm)
+                    print(result)
+                    print("board_state",board_state)
+
+                elif horse_type=="Q":
+                    result=Chess.move_queen(from_positon,to_position,board_state)
+                    board_state=result[1]
+                    alarm=result[2]
+                    print(alarm)
+                    print(result)
+                    print("board_state",board_state)
+            else:
+                alarm=is_valid_input_str[1]
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {"type": "chat.message", "board_state":board_state, "alarm":alarm ,"type_name":"board_state"}
             )

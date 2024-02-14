@@ -38,7 +38,27 @@ class Chess:
         for i in range(chess_board_cells):
             for s in range(chess_board_cells):
                 self.board[i][s]=EMPTY
-                
+
+    @classmethod
+    def is_valid_input_str(cls,position_str):
+        print("position_str[1]",type(position_str))
+        print("position_str[1]",len(position_str))
+        print("position_str[1]",position_str[0])
+        print("position_str[1]",position_str[1])
+        print(position_str)
+
+        if len(position_str)!= 11:
+            print("cant pass len")
+            return False, "check your position"
+        if not position_str[1].isalpha() or position_str[1].lower() not in 'abcdefgh':
+            print("position_str[0][0]",position_str[1])
+            return False, "check your position"
+        if not position_str[2].isdigit() or int(position_str[2]) not in range(1, 9):
+            print("position_str[0][0]",position_str[1])
+            return False, "check your position"
+        else:
+            return True
+
     @classmethod
     def is_valid_position_str(cls,position_str):
         if len(position_str)!=2:
