@@ -269,7 +269,7 @@ class Chess:
             #위왼쪽 이동
             if dif_i>0 and dif_j>0:
                 for i in range(1,abs(dif_i)+1):
-                    if board[i_from-i][j_from-i]!=EMPTY:
+                    if board[i_from+i][j_from+i]!=EMPTY:
                         is_ok=False
                         print("bishop ++ move false")
                         break
@@ -386,7 +386,7 @@ class Chess:
         dif_i=i_to-i_from
         dif_j=j_to-j_from
         isValid_diagonal=abs(dif_i)==abs(dif_j)
-        isVaild=isVaild_same_positon and isValid_pick_horse
+        isVaild=isVaild_same_positon and isValid_pick_horse and isValid_from and isValid_to
         if isVaild:
             print("isVaild",isVaild)
             is_ok=True
@@ -415,19 +415,19 @@ class Chess:
                 print("QUEEN vaild")
                 if dif_i>0 and dif_j>0:
                     for i in range(1,abs(dif_i)+1):
-                        if board[i_from-i][j_from-i]!=EMPTY:
+                        if board[i_from+i][j_from+i]!=EMPTY:
                             is_ok=False
                             print("QUEEN ++ move")
                             pass
                 if dif_i<0 and dif_j>0:
                     for i in range(1,abs(dif_i)+1):
-                        if board[i_from-i][j_from-i]!=EMPTY:
+                        if board[i_from-i][j_from+i]!=EMPTY:
                             is_ok=False
                             print("QUEEN +- move")
                             pass
                 if dif_i>0 and dif_j<0:
                     for i in range(1,abs(dif_i)+1):
-                        if board[i_from-i][j_from-i]!=EMPTY:
+                        if board[i_from+i][j_from-i]!=EMPTY:
                             is_ok=False
                             print("QUEEN -+ move")
                             pass
