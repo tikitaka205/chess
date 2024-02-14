@@ -91,8 +91,8 @@ class ChatConsumer(WebsocketConsumer):
                 result=Chess.move_bishop(from_positon,to_position,board_state)
                 board_state=result[1]
                 alarm=result[2]
-                print(alarm)
-                print(result)
+                print("alarm",alarm)
+                print("result",result)
                 print("board_state",board_state)
 
             elif horse_type=="N":

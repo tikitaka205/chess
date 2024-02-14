@@ -261,7 +261,7 @@ class Chess:
         #대각선 ++ +- -+ -- 네가지
         is_ok=True
         if isValid:
-            print("BISHOP vaild")
+            print("come in BISHOP vaild route")
             #dif_i dif_j의 차이
             #dif i 가 양수면 아래로 음수면 위로
             #dif j 가 양수면 오른쪽 음수면 왼쪽
@@ -271,48 +271,52 @@ class Chess:
                 for i in range(1,abs(dif_i)+1):
                     if board[i_from-i][j_from-i]!=EMPTY:
                         is_ok=False
-                        print("bishop ++ move")
-                        pass
+                        print("bishop ++ move false")
+                        break
                     else:
-                        print("bishop ++ move 통과")
+                        print("bishop ++ move true")
                         pass
             #위오른쪽 이동
             elif dif_i<0 and dif_j>0:
                 for i in range(1,abs(dif_i)+1):
                     if board[i_from-i][j_from+i]!=EMPTY:
                         is_ok=False
-                        print("bishop +- move")
-                        pass
+                        print("bishop +- move false")
+                        break
                     else:
-                        print("bishop +- move 통과")
+                        print("bishop +- move true")
                         pass
             #왼쪽아래 이동
             elif dif_i>0 and dif_j<0:
                 for i in range(1,abs(dif_i)+1):
                     if board[i_from+i][j_from-i]!=EMPTY:
                         is_ok=False
-                        print("bishop -+ move")
-                        pass
+                        print("bishop -+ move false")
+                        break
                     else:
-                        print("bishop -+ move 통과")
+                        print("bishop -+ move true")
                         pass
             #왼쪽위 이동
             elif dif_i<0 and dif_j<0:
                 for i in range(1,abs(dif_i)+1):
                     if board[i_from-i][j_from-i]!=EMPTY:
                         is_ok=False
-                        print("bishop -- move")
-                        pass
+                        print("bishop -- move false")
+                        break
                     else:
-                        print("bishop -- move 통과")
+                        print("bishop -- move true")
                         pass
+        #vaild 통과 불가
         else:
             return False, board, "check your position"
+        #움직이려는 위치가 괜찮다면 이동
         if is_ok==True:
             print("BISHOP move")
             board[i_from][j_from]=EMPTY
             board[i_to][j_to] = from_positon[2] + BISHOP
             return True, board, f"{j_to},{i_to}로 이동"
+        else:
+            return False, board, "check your position"
 
 
     #'b2wN,c3' +1+2 +1
