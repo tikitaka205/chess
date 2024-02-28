@@ -59,14 +59,7 @@ class ChatConsumer(WebsocketConsumer):
             pattern = re.compile(r'([a-z][1-8][a-z][A-Z])|([a-z][1-8])')
             matches = pattern.findall(horse)
             horse_move = ["".join(match) for match in matches if any(match)]
-
-            print("horse",horse)
-            print("horse",horse[0])
-            print("horse",len(horse))
-            print("horse_move",horse_move)
-            # print("horse_move",horse_type)
             is_valid_input_str = Chess.is_valid_input_str(horse)
-            print(is_valid_input_str)
             
             #룸번호 유저
             #룸번호로 방 플레이어, 턴 보고 응답
@@ -80,7 +73,6 @@ class ChatConsumer(WebsocketConsumer):
 #           'e1wQ','e3'          퀸
 #           'd1wK','e2'          킹
             if is_valid_input_str:
-
                 from_positon=horse_move[0]
                 to_position=horse_move[1]
                 horse_type=horse_move[0][3]

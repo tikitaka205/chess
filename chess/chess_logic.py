@@ -152,13 +152,15 @@ class Chess:
         isGoPositonEmpty=board[i_to][j_to]==EMPTY
         isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
         isValid = isValid_to and isValid_from and isJPositionSame and isIPositionSame and isGoPositonEmpty and isValid_pick_horse
+        isVaild_first_move_black=from_positon[1]=="7"
+        isVaild_first_move_white=from_positon[1]=="2"
         print("move_pawn", i_from, j_from, i_to, j_to) #여기서 i j 는 실제 0,0을 의미
         if isValid:
             dif=i_to-i_from
             print("valid")
             if from_positon[-2]==BLACK:
                 # print("black")
-                if dif >= 1 and dif <= 2: #if=1 or 2 로 해도 될듯?
+                if dif >= 1 and dif <= 2 and isVaild_first_move_black:  #if=1 or 2 로 해도 될듯?
                     # print("1,2칸 움직임")
                     #앞에 말이 막고있는지 확인
                     # is_okay=True
@@ -166,7 +168,7 @@ class Chess:
                         if board[i_from + i][j_from]!=EMPTY:
                             # is_okay=False
                             # break
-                            return False, board, "can't move position"
+                            return False, board, "My chess piece is there."
                         else:
                             board[i_from][j_from]=EMPTY
                             print("원래있던 자리 지움")
@@ -174,22 +176,37 @@ class Chess:
                             print("제대로 움직임")
                             print(board)
                             return True, board, f"{j_to},{i_to}로 이동"
+                elif dif == 1 and not isVaild_first_move_black:
+                    for i in range(1, dif+1):
+                        if board[i_from + i][j_from]!=EMPTY:
+                            return False, board, "Pawns can move two squares only on their initial move."
+                        else:
+                            board[i_from][j_from]=EMPTY
+                            board[i_to][j_to]=from_positon[2] + PAWN
+                            return True, board, f"{j_to},{i_to}로 이동"                
                 else:
-                    print("한칸 이상 움직임")
-                    return False
+                    return False, board, "can't move position"
             if from_positon[-2]==WHITE:
                 # print("WHITE")
-                if dif >= -2 and dif <= -1:
+                if dif >= -2 and dif <= -1 and isVaild_first_move_white:
                     for i in range(1, abs(dif)+1):
                         if board[i_from - i][j_from]!=EMPTY:
-                            return False, board, "can't move position"
+                            return False, board, "My chess piece is there."
                         else:
                             board[i_from][j_from]=EMPTY
                             board[i_to][j_to]=from_positon[2] + PAWN
                             # print("white움직임")
                             return True, board, f"{j_to},{i_to}로 이동"
+                elif dif == -1 and not isVaild_first_move_white:
+                    for i in range(1, abs(dif)+1):
+                        if board[i_from - i][j_from]!=EMPTY:
+                            return False, board, "Pawns can move two squares only on their initial move."
+                        else:
+                            board[i_from][j_from]=EMPTY
+                            board[i_to][j_to]=from_positon[2] + PAWN
+                            return True, board, f"{j_to},{i_to}로 이동"                    
                 else:
-                    return False
+                    return False, board, "can't move position"
         else:
             print("invalid")
             return False, board, "check your position"
