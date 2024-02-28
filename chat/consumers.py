@@ -72,7 +72,7 @@ class ChatConsumer(WebsocketConsumer):
 #           'e2wP','e4'
 #           'e1wQ','e3'          퀸
 #           'd1wK','e2'          킹
-            if is_valid_input_str:
+            if is_valid_input_str[0]:
                 from_positon=horse_move[0]
                 to_position=horse_move[1]
                 horse_type=horse_move[0][3]

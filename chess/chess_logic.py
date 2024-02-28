@@ -41,11 +41,11 @@ class Chess:
 
     @classmethod
     def is_valid_input_str(cls,position_str):
-        print("position_str[1]",type(position_str))
-        print("position_str[1]",len(position_str))
-        print("position_str[1]",position_str[0])
-        print("position_str[1]",position_str[1])
-        print(position_str)
+        # print("position_str[1]",type(position_str))
+        # print("position_str[1]",len(position_str))
+        # print("position_str[1]",position_str[0])
+        # print("position_str[1]",position_str[1])
+        # print(position_str)
 
         if len(position_str)!= 11:
             print("cant pass len")

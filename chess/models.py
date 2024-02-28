@@ -1,6 +1,12 @@
 from django.db import models
 from user.models import User
 
+
+#체스 방을 만드는 이유
+#턴
+#시간제한
+#채팅
+#
 class ChessLog(models.Model):
     class Meta:
         db_table = 'ChessLog'
