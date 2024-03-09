@@ -41,10 +41,10 @@ class User(AbstractBaseUser):
     rank = models.SmallIntegerField(
         default=1000,
     )
-
-    win = models.CharField(
-        max_length=128,
-    )
+    
+    win = models.PositiveIntegerField(default=0)
+    lose = models.PositiveIntegerField(default=0)
+    draw = models.PositiveIntegerField(default=0)
 
     is_admin = models.BooleanField(default=False)
     objects = UserManager()
