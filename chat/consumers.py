@@ -60,7 +60,8 @@ class ChatConsumer(WebsocketConsumer):
             matches = pattern.findall(horse)
             horse_move = ["".join(match) for match in matches if any(match)]
             is_valid_input_str = Chess.is_valid_input_str(horse)
-            
+            print("is_valid_input_str",is_valid_input_str)
+            # print("is_valid_input_str",is_valid_input_str[0])
             #룸번호 유저
             #룸번호로 방 플레이어, 턴 보고 응답
             #체스

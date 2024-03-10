@@ -45,19 +45,21 @@ class Chess:
         # print("position_str[1]",len(position_str))
         # print("position_str[1]",position_str[0])
         # print("position_str[1]",position_str[1])
-        # print(position_str)
-
+        print(position_str)
         if len(position_str)!= 11:
             print("cant pass len")
             return False, "check your position"
-        if not position_str[1].isalpha() or position_str[1].lower() not in 'abcdefgh':
+        elif not position_str[1].isalpha() or position_str[1].lower() not in 'abcdefgh':
             print("position_str[0][0]",position_str[1])
             return False, "check your position"
-        if not position_str[2].isdigit() or int(position_str[2]) not in range(1, 9):
+        elif not position_str[2].isdigit() or int(position_str[2]) not in range(1, 9):
+            print("position_str[0][0]",position_str[1])
+            return False, "check your position"
+        elif position_str[4] not in "P,Q,K,B,R,N":
             print("position_str[0][0]",position_str[1])
             return False, "check your position"
         else:
-            return True
+            return True, "good move"
 
     @classmethod
     def is_valid_position_str(cls,position_str):

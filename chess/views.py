@@ -73,8 +73,13 @@ class ChessView(APIView):
             game.save()
             print(game.player_1_ready)
             print("1")
+            data={
+            "player":"player_1",
+            "board_state":board_state,
+            "ready_state":"game_start"
+            }
             if game.player_1_ready and game.player_2_ready:
-                return Response({"board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
+                return Response(data,status=status.HTTP_200_OK)
             return Response({"ready_state":"player_1_True"},status=status.HTTP_200_OK)
 
         elif game.player_1.id==user_id and game.player_1_ready==True:
@@ -92,15 +97,20 @@ class ChessView(APIView):
             game.save()
             print("3")
             if game.player_1_ready and game.player_2_ready:
-                return Response({"board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
+                return Response({"player":"player_2","board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
             return Response({"ready_state":"player_2_True"},status=status.HTTP_200_OK)
             
         elif game.player_1.id!=user_id and game.player_2_ready==True:
             game.player_2_ready=False       
             game.save()
             print("4")
+            data={
+            "player":"player_2",
+            "board_state":board_state,
+            "ready_state":"game_start"
+            }
             if game.player_1_ready and game.player_2_ready:
-                return Response({"board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
+                return Response(data,status=status.HTTP_200_OK)
             return Response({"ready_state":"player_2_False"},status=status.HTTP_200_OK)
 
         # print(game.player_1_ready)
