@@ -88,11 +88,12 @@ class ChessView(APIView):
             print(game.player_1_ready)
             print("2")
             if game.player_1_ready and game.player_2_ready:
-                return Response({"board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
+                return Response({"player":"player_1","board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
             return Response({"ready_state":"player_1_False"},status=status.HTTP_200_OK)
 
         elif game.player_1.id!=user_id and game.player_2==None:
-            game.player_2=user_id
+            user=get_object_or_404(User,id=user_id)
+            game.player_2=user
             game.player_2_ready=True
             game.save()
             print("3")
@@ -100,7 +101,7 @@ class ChessView(APIView):
                 return Response({"player":"player_2","board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
             return Response({"ready_state":"player_2_True"},status=status.HTTP_200_OK)
             
-        elif game.player_1.id!=user_id and game.player_2_ready==True:
+        elif game.player_1.id!=user_id and game.player_2.id==user_id and game.player_2_ready==True:
             game.player_2_ready=False       
             game.save()
             print("4")
@@ -110,9 +111,25 @@ class ChessView(APIView):
             "ready_state":"game_start"
             }
             if game.player_1_ready and game.player_2_ready:
-                return Response(data,status=status.HTTP_200_OK)
+                return Response({"player":"player_2","board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
             return Response({"ready_state":"player_2_False"},status=status.HTTP_200_OK)
 
+        elif game.player_1.id!=user_id and game.player_2.id==user_id and game.player_2_ready==False:
+            game.player_2_ready=True       
+            game.save()
+            print("5")
+            data={
+            "player":"player_2",
+            "board_state":board_state,
+            "ready_state":"game_start"
+            }
+            if game.player_1_ready and game.player_2_ready:
+                return Response({"player":"player_2","board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
+            return Response({"ready_state":"player_2_True"},status=status.HTTP_200_OK)
+
+        else:
+            print("=====")
+            pass
         # print(game.player_1_ready)
         # print(game.player_2_ready)
         # if game.player_1_ready and game.player_2_ready:

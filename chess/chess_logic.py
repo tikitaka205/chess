@@ -146,13 +146,13 @@ class Chess:
     @classmethod
     def move_pawn(cls, from_positon, to_position, board):
         if from_positon[:-2] ==to_position:
-            return False
+            return False, board, "you moved same position."
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isJPositionSame=j_from==j_to
         isIPositionSame=i_from!=i_to
         isGoPositonEmpty=board[i_to][j_to]==EMPTY
-        isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
+        isValid_pick_horse=board[i_from][j_from]==from_positon[2:] #position check vaild
         isValid = isValid_to and isValid_from and isJPositionSame and isIPositionSame and isGoPositonEmpty and isValid_pick_horse
         isVaild_first_move_black=from_positon[1]=="7"
         isVaild_first_move_white=from_positon[1]=="2"
@@ -166,6 +166,7 @@ class Chess:
                     # print("1,2칸 움직임")
                     #앞에 말이 막고있는지 확인
                     # is_okay=True
+
                     for i in range(1, dif+1): #항상 그냥 숫자만 적지말고 연관된 숫자를 활용하자
                         if board[i_from + i][j_from]!=EMPTY:
                             # is_okay=False
@@ -213,6 +214,52 @@ class Chess:
             print("invalid")
             return False, board, "check your position"
 
+    #폰 공격 대각선인데 먼저 대각선으로 움직이는지 확인해야겠네
+    #넘겨올때 대각선인거 확인하고 들어옴
+    #대각선이면 어택으로 가는 로직 블랙이면 아래로 화이트면 위로
+    #이걸 컨슈머에서 컨트롤해서 이 함수를 쓰게
+    @classmethod
+    def attack_pawn(cls, from_positon, to_position, board):
+        isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
+        isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
+        dif_i=i_to-i_from
+        dif_j=j_to-j_from
+        isIDifVaild=dif_i<=1 and -1<=dif_i
+        isJDifVaild=dif_j<=1 and -1<=dif_j
+        isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
+        isValid=isValid_from and isValid_to and isIDifVaild and isJDifVaild and isValid_pick_horse
+        if isValid:
+            print("PAWN attack valid")
+            if from_positon[-2]==BLACK:
+                isPositonNotEmptyVaild=board[i_to][j_to][0]=='w'
+                isIValid=dif_i==1
+                isJValid=dif_j==1 or -1
+                if isPositonNotEmptyVaild and isIValid and isJValid:
+                    board[i_from][j_from]=EMPTY
+                    board[i_to][j_to] = from_positon[2] + PAWN
+                    return True, board, f"PAWN {from_positon[:2]},{to_position}로 이동"
+                else:
+                    print("PAWN invalid")
+                    return False, board, "check your position"
+
+            elif from_positon[-2]==WHITE:
+                isPositonNotEmptyVaild=board[i_to][j_to][0]=='b'
+                isIValid=dif_i==-1
+                isJValid=dif_j==1 or -1
+                if isPositonNotEmptyVaild and isIValid and isJValid:
+                    board[i_from][j_from]=EMPTY
+                    board[i_to][j_to] = from_positon[2] + PAWN
+                    return True, board, f"PAWN {from_positon[:2]},{to_position}로 이동"
+                else:
+                    print("PAWN invalid")
+                    return False, board, "check your position"
+            else:
+                return False, board, "check your position"
+
+        else:
+            return False, board, "check your position"
+
+            
     #TODO 종 횡으로 움직임 #완료
     #TODO 같은자리 움직임 금지 #완료
     #TODO 체스판 안의 범위로 이동 #완료

@@ -79,12 +79,26 @@ class ChatConsumer(WebsocketConsumer):
                 horse_type=horse_move[0][3]
 
                 if horse_type=="P":
-                    result=Chess.move_pawn(from_positon,to_position,board_state)
+                    #여기 폰 대각선이동일때는 공격으로 함수
+                    #if PAWN move diagonal use attack def
+                    isValid_from, i_from, j_from=Chess.transform_str_to_num(from_positon[:2])
+                    print("======",from_positon[:2])
+                    print("==========",i_from, j_from)
+                    isValid_to, i_to, j_to=Chess.transform_str_to_num(to_position)
+                    dif_i=i_to-i_from
+                    dif_j=j_to-j_from
+                    isValid_diagonal=abs(dif_i)==abs(dif_j)
+
+                    if isValid_diagonal:
+                        result=Chess.attack_pawn(from_positon,to_position,board_state)
+                    else:
+                        result=Chess.move_pawn(from_positon,to_position,board_state)
                     board_state=result[1]
                     alarm=result[2]
                     print(alarm)
                     print(result)
                     print(board_state)
+
 
                 elif horse_type=="B":
                     result=Chess.move_bishop(from_positon,to_position,board_state)

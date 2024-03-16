@@ -1,5 +1,5 @@
 # python 3.10.8버전 이미지를 사용해 빌드
-FROM python:3.10.8
+FROM python:3.11.4
 
 # .pyc 파일을 생성하지 않도록 설정합니다.
 ENV PYTHONDONTWRITEBYTECODE=1
