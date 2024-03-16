@@ -11,7 +11,8 @@ PAWN='P'
 BLACK='b'
 WHITE='w'
 
-
+b="BLACK"
+W="WHITE"
 class Chess:
     def __init__(self):
         self.board=[]
@@ -148,6 +149,10 @@ class Chess:
         if from_positon[:-2] ==to_position:
             return False, board, "you moved same position."
         horse_color= from_positon[-2]
+        if horse_color== 'w':
+            horse_color="WHITE"
+        else:
+            horse_color="BLACK"
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isJPositionSame=j_from==j_to
@@ -222,6 +227,10 @@ class Chess:
     @classmethod
     def attack_pawn(cls, from_positon, to_position, board):
         horse_color= from_positon[-2]
+        if horse_color== 'w':
+            horse_color="WHITE"
+        else:
+            horse_color="BLACK"
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         dif_i=i_to-i_from
@@ -274,6 +283,10 @@ class Chess:
     @classmethod
     def move_rook(cls, from_positon, to_position, board):
         horse_color= from_positon[-2]
+        if horse_color== 'w':
+            horse_color="WHITE"
+        else:
+            horse_color="BLACK"
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
@@ -339,6 +352,10 @@ class Chess:
     @classmethod
     def move_bishop(cls,from_positon, to_position, board):
         horse_color= from_positon[-2]
+        if horse_color=='w':
+            horse_color=WHITE
+        else:
+            horse_color=BLACK
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
@@ -416,6 +433,10 @@ class Chess:
     @classmethod
     def move_knight(cls,from_positon, to_position, board):
         horse_color= from_positon[-2]
+        if horse_color== 'w':
+            horse_color="WHITE"
+        else:
+            horse_color="BLACK"
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         dif_i=i_to-i_from #종의 움직임
@@ -443,6 +464,10 @@ class Chess:
     @classmethod
     def move_king(cls,from_positon, to_position, board):
         horse_color= from_positon[-2]
+        if horse_color== 'w':
+            horse_color="WHITE"
+        else:
+            horse_color="BLACK"
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
@@ -470,6 +495,10 @@ class Chess:
     @classmethod
     def move_queen(cls,from_positon, to_position, board):
         horse_color= from_positon[-2]
+        if horse_color== 'w':
+            horse_color="WHITE"
+        else:
+            horse_color="BLACK"
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isVaild_same_positon = i_from!=i_to or j_from!=j_to
