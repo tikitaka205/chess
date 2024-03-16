@@ -31,8 +31,9 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     #상대가 보내면 바로 나에게 보임
     def receive(self, text_data):
-        # print(text_data)
+        print("=======text_data",text_data)
         text_data_json = json.loads(text_data)
+        print(text_data_json)
         # text_data_json["player_1"]
         if text_data_json["type"]=="message":
             message = text_data_json["message"]
@@ -40,6 +41,16 @@ class ChatConsumer(WebsocketConsumer):
             # print("receive에서메세지",text_data_json)
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {"type": "chat.message", "message": message,"type_name":"message"}
+            )
+
+        if text_data_json["type"]=="start":
+            """
+            다른사람에게 게임시작 알림
+            """
+            alarm="GAME START"
+            board_state = text_data_json["board"]
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name, {"type": "chat.message", "board_state":board_state, "alarm":alarm ,"type_name":"board_state"}
             )
 
         #          'a7bP','a6'

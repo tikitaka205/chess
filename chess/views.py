@@ -79,6 +79,7 @@ class ChessView(APIView):
             "ready_state":"game_start"
             }
             if game.player_1_ready and game.player_2_ready:
+                
                 return Response(data,status=status.HTTP_200_OK)
             return Response({"ready_state":"player_1_True"},status=status.HTTP_200_OK)
 
