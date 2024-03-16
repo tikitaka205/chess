@@ -147,6 +147,7 @@ class Chess:
     def move_pawn(cls, from_positon, to_position, board):
         if from_positon[:-2] ==to_position:
             return False, board, "you moved same position."
+        horse_color= from_positon[-2]
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isJPositionSame=j_from==j_to
@@ -178,7 +179,7 @@ class Chess:
                             board[i_to][j_to]=from_positon[2] + PAWN
                             print("제대로 움직임")
                             print(board)
-                            return True, board, f"{j_to},{i_to}로 이동"
+                            return True, board, f"{horse_color} PAWN {from_positon[:2]},{to_position}로 이동"
                 elif dif == 1 and not isVaild_first_move_black:
                     for i in range(1, dif+1):
                         if board[i_from + i][j_from]!=EMPTY:
@@ -186,7 +187,7 @@ class Chess:
                         else:
                             board[i_from][j_from]=EMPTY
                             board[i_to][j_to]=from_positon[2] + PAWN
-                            return True, board, f"{j_to},{i_to}로 이동"                
+                            return True, board, f"{horse_color} PAWN {from_positon[:2]},{to_position}로 이동"                
                 else:
                     return False, board, "can't move position"
             if from_positon[-2]==WHITE:
@@ -199,7 +200,7 @@ class Chess:
                             board[i_from][j_from]=EMPTY
                             board[i_to][j_to]=from_positon[2] + PAWN
                             # print("white움직임")
-                            return True, board, f"{j_to},{i_to}로 이동"
+                            return True, board, f"{horse_color} PAWN {from_positon[:2]},{to_position}로 이동"
                 elif dif == -1 and not isVaild_first_move_white:
                     for i in range(1, abs(dif)+1):
                         if board[i_from - i][j_from]!=EMPTY:
@@ -207,7 +208,7 @@ class Chess:
                         else:
                             board[i_from][j_from]=EMPTY
                             board[i_to][j_to]=from_positon[2] + PAWN
-                            return True, board, f"{j_to},{i_to}로 이동"                    
+                            return True, board, f"{horse_color} PAWN {from_positon[:2]},{to_position}로 이동"                    
                 else:
                     return False, board, "can't move position"
         else:
@@ -220,6 +221,7 @@ class Chess:
     #이걸 컨슈머에서 컨트롤해서 이 함수를 쓰게
     @classmethod
     def attack_pawn(cls, from_positon, to_position, board):
+        horse_color= from_positon[-2]
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         dif_i=i_to-i_from
@@ -237,7 +239,7 @@ class Chess:
                 if isPositonNotEmptyVaild and isIValid and isJValid:
                     board[i_from][j_from]=EMPTY
                     board[i_to][j_to] = from_positon[2] + PAWN
-                    return True, board, f"PAWN {from_positon[:2]},{to_position}로 이동"
+                    return True, board, f"{horse_color} PAWN {from_positon[:2]},{to_position}로 이동"
                 else:
                     print("PAWN invalid")
                     return False, board, "check your position"
@@ -249,7 +251,7 @@ class Chess:
                 if isPositonNotEmptyVaild and isIValid and isJValid:
                     board[i_from][j_from]=EMPTY
                     board[i_to][j_to] = from_positon[2] + PAWN
-                    return True, board, f"PAWN {from_positon[:2]},{to_position}로 이동"
+                    return True, board, f"{horse_color} PAWN {from_positon[:2]},{to_position}로 이동"
                 else:
                     print("PAWN invalid")
                     return False, board, "check your position"
@@ -271,6 +273,7 @@ class Chess:
     #move_rook('a7bR','a6')
     @classmethod
     def move_rook(cls, from_positon, to_position, board):
+        horse_color= from_positon[-2]
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
@@ -322,7 +325,7 @@ class Chess:
             if is_ok:
                     board[i_from][j_from]=EMPTY
                     board[i_to][j_to] = from_positon[2] + ROOK
-                    return True, board, f"{j_to},{i_to}로 이동"
+                    return True, board, f"{horse_color} ROOK {from_positon[:2]},{to_position}로 이동"
         else:
             print("룩 vaild 실패")
             return False, board, "check your position"
@@ -335,6 +338,7 @@ class Chess:
 
     @classmethod
     def move_bishop(cls,from_positon, to_position, board):
+        horse_color= from_positon[-2]
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
@@ -400,7 +404,7 @@ class Chess:
             print("BISHOP move")
             board[i_from][j_from]=EMPTY
             board[i_to][j_to] = from_positon[2] + BISHOP
-            return True, board, f"{j_to},{i_to}로 이동"
+            return True, board, f"{horse_color} BISHOP {from_positon[:2]},{to_position}로 이동"
         else:
             return False, board, "check your position"
 
@@ -411,6 +415,7 @@ class Chess:
     #움직임 범위 1이상 2이하
     @classmethod
     def move_knight(cls,from_positon, to_position, board):
+        horse_color= from_positon[-2]
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         dif_i=i_to-i_from #종의 움직임
@@ -424,7 +429,7 @@ class Chess:
             print("KNIGHT move")
             board[i_from][j_from]=EMPTY
             board[i_to][j_to] = from_positon[2] + KNIGHT
-            return True, board, f"{j_to},{i_to}로 이동"
+            return True, board, f"{horse_color} KNIGHT {from_positon[:2]},{to_position}로 이동"
         else:
             print("KNIGHT invalid")
             return False, board, "check your position"
@@ -437,6 +442,7 @@ class Chess:
 
     @classmethod
     def move_king(cls,from_positon, to_position, board):
+        horse_color= from_positon[-2]
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
@@ -448,7 +454,7 @@ class Chess:
         if isValid:
             board[i_from][j_from]=EMPTY
             board[i_to][j_to] = from_positon[2] + KING
-            return True, board, f"{j_to},{i_to}로 이동"
+            return True, board, f"{horse_color} KING {from_positon[:2]},{to_position}로 이동"
         else:
             print("KING isValid_move",isValid_move)
             print("KING isVaild_same_positon",isVaild_same_positon)
@@ -463,6 +469,7 @@ class Chess:
 
     @classmethod
     def move_queen(cls,from_positon, to_position, board):
+        horse_color= from_positon[-2]
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isVaild_same_positon = i_from!=i_to or j_from!=j_to
@@ -531,7 +538,7 @@ class Chess:
                 print("QUEEN move")
                 board[i_from][j_from]=EMPTY
                 board[i_to][j_to] = from_positon[2] + QUEEN
-                return True, board, f"{j_to},{i_to}로 이동"
+                return True, board, f"{horse_color} QUEEN {from_positon[:2]},{to_position}로 이동"
             else:
                 print('is_okay=false')
                 return False, board, "check your position"
