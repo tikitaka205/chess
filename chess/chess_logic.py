@@ -505,9 +505,6 @@ class Chess:
                 board[i_to][j_to] = from_positon[2] + KNIGHT
                 return True, board, f"{horse_color} KNIGHT 을 {from_positon[:2]} 에서 {to_position}로 이동하며 {board[i_to][j_to][1]}을 잡았습니다"
 
-            # board[i_from][j_from]=EMPTY
-            # board[i_to][j_to] = from_positon[2] + KNIGHT
-            # return True, board, f"{horse_color} KNIGHT {from_positon[:2]},{to_position}로 이동"
         else:
             if isVaild_position_1==False or isVaild_position_2==False:
                 return False, board, "KNIGHT가 움직일 수 있는 위치가 아닙니다"
@@ -516,12 +513,13 @@ class Chess:
             else:
                 return False, board, "선택 불가능한 위치 이거나 움직일 수 없는 위치 입니다"
 
-        #TODO to_position이동시 체크가 되면 안된다
-        #TODO 여기서 같은팀 공격불가 기능 만들어보자
-        #TODO 공격 기능도 만들어보자
-        #TODO 캐슬링
 
-
+    #TODO to_position이동시 체크가 되면 안된다
+    #TODO 여기서 같은팀 공격불가 기능 만들어보자
+    #TODO 공격 기능도 만들어보자
+    #TODO 캐슬링
+    #TODO 무승부?
+    #TODO 상대방이 체크했을때 알림
     @classmethod
     def move_king(cls,from_positon, to_position, board):
         horse_color= from_positon[-2]
@@ -574,70 +572,121 @@ class Chess:
             print("isVaild",isVaild)
             is_ok=True
             if isVaild_horizon:
-                print("호리즌",isVaild_horizon)
+                print("horizon",isVaild_horizon)
                 dif=j_to-j_from
-                for i in range(1,abs(dif)+1):
+                if dif<0:
+                    re=int(1)
+                else:
+                    re=int(-1)
+                #1칸 움직일때는 무조건 통과할듯?
+                for i in range(1,abs(dif)):
                     if i < dif:
-                        if board[i_from][j_from+i] != EMPTY:
+                        if board[i_from][j_from-(re*i)] != EMPTY:
                             print("horizon 움직임 실패")
                             is_ok=False
-                            break
+                            return False, board, "말의 이동위치로 가기 전 방해물이 있습니다"
+                #움직이는 위치 전까지 방해물이 없다면
+                if is_ok==True:
+                    #그리고 가는곳이 비어있다면
+                    if board[i_to][j_to] == EMPTY:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + QUEEN
+                        return True, board, f"{horse_color} QUEEN {from_positon[:2]} 에서 {to_position}로 이동"
+                    #가는곳에 나의말이 있다
+                    elif board[i_from][j_from][0]==board[i_to][j_to][0]:
+                        return False, board, "말의 이동위치에 나의 말이 있습니다"
+                    #가는곳에 상대방의 말이 있다
+                    else:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + QUEEN
+                        return True, board, f"{horse_color} QUEEN 을 {from_positon[:2]} 에서 {to_position}로 이동하며 {board[i_to][j_to+i][1]}을 잡았습니다"
 
             elif isVaild_vertical:
-                print("버티컬",isVaild_vertical)
+                print("vertical",isVaild_vertical)
                 dif=i_to-i_from
-                for i in range(1,abs(dif)+1):
-                    if i > dif:
-                        if board[i_from-i][j_from] != EMPTY:
-                            print("i",i)
-                            print("vertical 위 움직임 실패")
+                #움직임이 아래면 + 위로올라가면 dif -
+                if dif<0:
+                    re=int(1)
+                else:
+                    re=int(-1)
+                for i in range(1,abs(dif)):
+                    if i < abs(dif):
+                        print("i",i)
+                        print("re",re)
+                        print("dif",dif)
+                        print("i",board[i_from-(re*i)][j_from])
+                        if board[i_from-(re*i)][j_from] != EMPTY:
+                            print("vertical 움직임 실패")
                             is_ok=False
-                            break
-                        
+                            return False, board, "말의 이동위치로 가기 전 방해물이 있습니다"
+                #움직이는 위치 전까지 방해물이 없다면
+                if is_ok==True:
+                    #그리고 가는곳이 비어있다면
+                    if board[i_to][j_to] == EMPTY:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + QUEEN
+                        return True, board, f"{horse_color} QUEEN {from_positon[:2]} 에서 {to_position}로 이동"
+                    #가는곳에 나의말이 있다
+                    elif board[i_from][j_from][0]==board[i_to][j_to][0]:
+                        return False, board, "말의 이동위치에 나의 말이 있습니다"
+                    #가는곳에 상대방의 말이 있다
+                    else:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + QUEEN
+                        return True, board, f"{horse_color} QUEEN 을 {from_positon[:2]} 에서 {to_position}로 이동하며 상대방의{board[i_to][j_to][1]}을 잡았습니다"            
+
             elif isValid_diagonal:
-                print("QUEEN vaild")
+                print("QUEEN diagonal vaild")
                 if dif_i>0 and dif_j>0:
-                    for i in range(1,abs(dif_i)+1):
+                    for i in range(1,abs(dif_i)):
                         if board[i_from+i][j_from+i]!=EMPTY:
                             is_ok=False
                             print("QUEEN ++ move")
-                            pass
-                if dif_i<0 and dif_j>0:
-                    for i in range(1,abs(dif_i)+1):
+                            break
+                #위오른쪽 이동
+                elif dif_i<0 and dif_j>0:
+                    for i in range(1,abs(dif_i)):
                         if board[i_from-i][j_from+i]!=EMPTY:
                             is_ok=False
                             print("QUEEN +- move")
-                            pass
-                if dif_i>0 and dif_j<0:
-                    for i in range(1,abs(dif_i)+1):
+                            break
+                #왼쪽아래 이동
+                elif dif_i>0 and dif_j<0:
+                    for i in range(1,abs(dif_i)):
                         if board[i_from+i][j_from-i]!=EMPTY:
                             is_ok=False
                             print("QUEEN -+ move")
-                            pass
-                if dif_i<0 and dif_j<0:
-                    for i in range(1,abs(dif_i)+1):
+                            break
+                #왼쪽위 이동
+                elif dif_i<0 and dif_j<0:
+                    for i in range(1,abs(dif_i)):
                         if board[i_from-i][j_from-i]!=EMPTY:
                             is_ok=False
                             print("QUEEN -- move")
-                            pass
-            else:
-                print("이동가능 위치가 아닙니다")
-                return False, board, "check your position"
+                            break
 
-            if is_ok==True:
-                print("QUEEN move")
-                board[i_from][j_from]=EMPTY
-                board[i_to][j_to] = from_positon[2] + QUEEN
-                return True, board, f"{horse_color} QUEEN {from_positon[:2]},{to_position}로 이동"
-            else:
-                print('is_okay=false')
-                return False, board, "check your position"
+                if is_ok==True:
+                    #그리고 가는곳이 비어있다면
+                    if board[i_to][j_to] == EMPTY:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + QUEEN
+                        return True, board, f"{horse_color} QUEEN 을 {from_positon[:2]} 에서 {to_position}로 이동"
+                    #가는곳에 나의말이 있다
+                    elif board[i_from][j_from][0]==board[i_to][j_to][0]:
+                        return False, board, "말의 이동위치에 나의 말이 있습니다"
+                    #가는곳에 상대방의 말이 있다
+                    else:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + QUEEN
+                        return True, board, f"{horse_color} QUEEN 을 {from_positon[:2]} 에서 {to_position}로 이동하며 {board[i_to][j_to][1]}을 잡았습니다"                
 
         else:
-            print("isVaild",isVaild)
-            print("QUEEN invaild")
-            return False, board, "check your position"
-
+            if isVaild_same_positon==False:
+                return False, board, "같은 자리로 움직일 수 없습니다"
+            elif isValid_pick_horse==False:
+                return False, board, "이동하려는 체스말이 그 자리에 없습니다."
+            else:
+                return False, board, "선택 불가능한 위치 이거나 움직일 수 없는 위치 입니다"
 
 # chess=Chess()
 # chess.set_game() #=Chess().print_board() 체스 클래스에 print_board()라는 함수를 실행
