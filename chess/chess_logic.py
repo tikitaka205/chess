@@ -340,7 +340,7 @@ class Chess:
                     else:
                         board[i_from][j_from]=EMPTY
                         board[i_to][j_to] = from_positon[2] + ROOK
-                        return True, board, f"내 {horse_color} ROOK 을 {from_positon[:2]} 에서 {to_position}로 이동하며 상대방의{board[i_to][j_to+i][1]}을 잡았습니다"
+                        return True, board, f"{horse_color} ROOK 을 {from_positon[:2]} 에서 {to_position}로 이동하며 {board[i_to][j_to+i][1]}을 잡았습니다"
 
             elif isVaild_vertical:
                 print("vertical",isVaild_vertical)
@@ -374,69 +374,18 @@ class Chess:
                     else:
                         board[i_from][j_from]=EMPTY
                         board[i_to][j_to] = from_positon[2] + ROOK
-                        return True, board, f"내 {horse_color} ROOK 을 {from_positon[:2]} 에서 {to_position}로 이동하며 상대방의{board[i_to][j_to][1]}을 잡았습니다"
+                        return True, board, f"{horse_color} ROOK 을 {from_positon[:2]} 에서 {to_position}로 이동하며 상대방의{board[i_to][j_to][1]}을 잡았습니다"
             #가로 세로로 움직이는 경우가 아닐때
             else:
                 return False, board, "ROOK은 대각선으로 이동할 수 없습니다"
         #여기를 세분화 하면 정보를 많이 줄 수 있다 에러에 대한
-        # isVaild=isValid_from and isValid_to and isVaild_same_positon and isValid_pick_horse
         else:
             if isVaild_same_positon==False:
                 return False, board, "같은 자리로 움직일 수 없습니다."
             elif isValid_pick_horse==False:
                 return False, board, "이동하려는 체스말이 그 자리에 없습니다."
             else:
-            #여기를 세분화 하면 정보를 많이 줄 수 있다 에러에 대한
-                print("룩 vaild 실패")
-                return False, board, "선택할 수 없는 말 입니다."
-
-        """======================================"""
-        # if isVaild:
-        #     is_ok=True
-        #     if isVaild_horizon:
-        #         print("호리즌",isVaild_horizon)
-        #         dif=j_to-j_from
-        #         #움직일수 있는 곳을 확인한다
-        #         #공격하려면 한칸 전까지만 확인하고 움직이는곳에 상대말이라면
-        #         for i in range(1,abs(dif)+1):
-        #             # i_from이 a1 이면 i,j는 0부터 해서 i=7 j=0이 된다
-        #             #여기서 조건이 되면 + 된다면 위, 오른쪽 - 되면 아래, 왼쪽
-        #             #위로 움직이면 i_dif가 -된다
-        #             #6-8 =-2움직임 = 위
-        #             #8-6 = 2움직임 = 아래
-        #             if i < dif:
-        #                 if board[i_from][j_from+i] != EMPTY:
-        #                     print("horizon 움직임 실패")
-        #                     is_ok=False
-        #                     break
-
-        #     elif isVaild_vertical:
-        #         print("버티컬",isVaild_vertical)
-        #         dif=i_to-i_from
-        #         for i in range(1,abs(dif)+1):
-        #             #룩이 위로움직냐 아래로 움직이냐
-        #             #룩 위로 움직임
-        #             if i > dif:
-        #                 if board[i_from-i][j_from] != EMPTY:
-        #                     #전부다 확인하고 그 조건이 맞으면 옮겨야함
-        #                     #5에서 0으로 이동 dif=-5
-        #                     #0-7범위 여기범위에서는
-        #                     #b3 b8이 뚫린다 범위 체크다시 확인
-        #                     #5->0
-        #                     #0-5까지 확인
-        #                     print("i",i)
-        #                     print("vertical 위 움직임 실패")
-        #                     is_ok=False
-        #                     break
-        #     if is_ok:
-        #             board[i_from][j_from]=EMPTY
-        #             board[i_to][j_to] = from_positon[2] + ROOK
-        #             return True, board, f"{horse_color} ROOK {from_positon[:2]},{to_position}로 이동"
-        # else:
-        #     print("룩 vaild 실패")
-        #     return False, board, "check your position"
-        """======================================"""
-
+                return False, board, "선택 불가능한 위치 이거나 움직일 수 없는 위치 입니다"
 
     #같은자리 금지
     #대각선 다른말의 유무
@@ -453,12 +402,12 @@ class Chess:
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
         isValid_to, i_to, j_to=cls.transform_str_to_num(to_position)
         isValid_pick_horse=board[i_from][j_from]==from_positon[2:]
-        print("isValid_pick_horse",isValid_pick_horse)
-        print("from_positon[2:]",from_positon[2:])
         dif_i=i_to-i_from
         dif_j=j_to-j_from
         isValid_diagonal=abs(dif_i)==abs(dif_j)
         isValid=isValid_from and isValid_to and isValid_diagonal and isValid_pick_horse
+        print("isValid_pick_horse",isValid_pick_horse)
+        print("from_positon[2:]",from_positon[2:])
         #대각선 ++ +- -+ -- 네가지
         is_ok=True
         if isValid:
@@ -469,55 +418,56 @@ class Chess:
             #[i,j]=[+,+]오른쪽 아래 [+,-]왼쪽 아래 [-,+] 오른쪽 위[-,-] 왼쪽 위
             #위왼쪽 이동
             if dif_i>0 and dif_j>0:
-                for i in range(1,abs(dif_i)+1):
+                for i in range(1,abs(dif_i)):
                     if board[i_from+i][j_from+i]!=EMPTY:
                         is_ok=False
                         print("bishop ++ move false")
                         break
-                    else:
-                        print("bishop ++ move true")
-                        pass
             #위오른쪽 이동
             elif dif_i<0 and dif_j>0:
-                for i in range(1,abs(dif_i)+1):
+                for i in range(1,abs(dif_i)):
                     if board[i_from-i][j_from+i]!=EMPTY:
                         is_ok=False
                         print("bishop +- move false")
                         break
-                    else:
-                        print("bishop +- move true")
-                        pass
             #왼쪽아래 이동
             elif dif_i>0 and dif_j<0:
-                for i in range(1,abs(dif_i)+1):
+                for i in range(1,abs(dif_i)):
                     if board[i_from+i][j_from-i]!=EMPTY:
                         is_ok=False
                         print("bishop -+ move false")
                         break
-                    else:
-                        print("bishop -+ move true")
-                        pass
             #왼쪽위 이동
             elif dif_i<0 and dif_j<0:
-                for i in range(1,abs(dif_i)+1):
+                for i in range(1,abs(dif_i)):
                     if board[i_from-i][j_from-i]!=EMPTY:
                         is_ok=False
                         print("bishop -- move false")
                         break
-                    else:
-                        print("bishop -- move true")
-                        pass
+
+            if is_ok==True:
+                #그리고 가는곳이 비어있다면
+                if board[i_to][j_to] == EMPTY:
+                    board[i_from][j_from]=EMPTY
+                    board[i_to][j_to] = from_positon[2] + BISHOP
+                    return True, board, f"{horse_color} BISHOP 을 {from_positon[:2]} 에서 {to_position}로 이동"
+                #가는곳에 나의말이 있다
+                elif board[i_from][j_from][0]==board[i_to][j_to][0]:
+                    return False, board, "말의 이동위치에 나의 말이 있습니다"
+                #가는곳에 상대방의 말이 있다
+                else:
+                    board[i_from][j_from]=EMPTY
+                    board[i_to][j_to] = from_positon[2] + BISHOP
+                    return True, board, f"{horse_color} BISHOP 을 {from_positon[:2]} 에서 {to_position}로 이동하며 {board[i_to][j_to][1]}을 잡았습니다"
+
         #vaild 통과 불가
         else:
-            return False, board, "check your position"
-        #움직이려는 위치가 괜찮다면 이동
-        if is_ok==True:
-            print("BISHOP move")
-            board[i_from][j_from]=EMPTY
-            board[i_to][j_to] = from_positon[2] + BISHOP
-            return True, board, f"{horse_color} BISHOP {from_positon[:2]},{to_position}로 이동"
-        else:
-            return False, board, "check your position"
+            if isValid_diagonal==False:
+                return False, board, "BISHOP은 대각선으로만 움직일 수 있습니다."
+            elif isValid_pick_horse==False:
+                return False, board, "이동하려는 체스말이 그 자리에 없습니다."
+            else:
+                return False, board, "선택 불가능한 위치 이거나 움직일 수 없는 위치 입니다"
 
 
     #'b2wN,c3' +1+2 +1
