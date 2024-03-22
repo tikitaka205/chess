@@ -8,6 +8,14 @@ KNIGHT='N'
 ROOK='R'
 PAWN='P'
 
+EMPTY='00'
+KING='K'
+QUEEN='Q'
+BISHOP='B'
+KNIGHT='N'
+ROOK='R'
+PAWN='P'
+
 BLACK='b'
 WHITE='w'
 
@@ -227,6 +235,7 @@ class Chess:
     @classmethod
     def attack_pawn(cls, from_positon, to_position, board):
         horse_color= from_positon[-2]
+        #프론트 TTS
         if horse_color== 'w':
             horse_color="WHITE"
         else:
@@ -285,6 +294,7 @@ class Chess:
         horse_color= from_positon[-2]
         if horse_color== 'w':
             horse_color="WHITE"
+            horse_color_op="BLACK"
         else:
             horse_color="BLACK"
         isValid_from, i_from, j_from=cls.transform_str_to_num(from_positon[:2])
@@ -303,52 +313,136 @@ class Chess:
         if isVaild:
             is_ok=True
             if isVaild_horizon:
-                print("호리즌",isVaild_horizon)
+                print("horizon",isVaild_horizon)
                 dif=j_to-j_from
-                for i in range(1,abs(dif)+1):
-                    # i_from이 a1 이면 i,j는 0부터 해서 i=7 j=0이 된다
-                    #여기서 조건이 되면 + 된다면 위, 오른쪽 - 되면 아래, 왼쪽
-                    #위로 움직이면 i_dif가 -된다
-                    #6-8 =-2움직임 = 위
-                    #8-6 = 2움직임 = 아래
+                if dif<0:
+                    re=int(1)
+                else:
+                    re=int(-1)
+                #1칸 움직일때는 무조건 통과할듯?
+                for i in range(1,abs(dif)):
                     if i < dif:
-                        if board[i_from][j_from+i] != EMPTY:
+                        if board[i_from][j_from-(re*i)] != EMPTY:
                             print("horizon 움직임 실패")
                             is_ok=False
-                            break
+                            return False, board, "말의 이동위치로 가기 전 방해물이 있습니다"
+                #움직이는 위치 전까지 방해물이 없다면
+                if is_ok==True:
+                    #그리고 가는곳이 비어있다면
+                    if board[i_to][j_to] == EMPTY:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + ROOK
+                        return True, board, f"{horse_color} ROOK을 {from_positon[:2]} 에서 {to_position}로 이동"
+                    #가는곳에 나의말이 있다
+                    elif board[i_from][j_from][0]==board[i_to][j_to][0]:
+                        return False, board, "말의 이동위치에 나의 말이 있습니다"
+                    #가는곳에 상대방의 말이 있다
+                    else:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + ROOK
+                        return True, board, f"내 {horse_color} ROOK 을 {from_positon[:2]} 에서 {to_position}로 이동하며 상대방의{board[i_to][j_to+i][1]}을 잡았습니다"
 
             elif isVaild_vertical:
-                print("버티컬",isVaild_vertical)
+                print("vertical",isVaild_vertical)
                 dif=i_to-i_from
-                for i in range(1,abs(dif)+1):
-                    #룩이 위로움직냐 아래로 움직이냐
-                    #룩 위로 움직임
-                    if i > dif:
-                        if board[i_from-i][j_from] != EMPTY:
-                            #전부다 확인하고 그 조건이 맞으면 옮겨야함
-                            #5에서 0으로 이동 dif=-5
-                            #0-7범위 여기범위에서는
-                            #b3 b8이 뚫린다 범위 체크다시 확인
-                            #5->0
-                            #0-5까지 확인
-                            print("i",i)
-                            print("vertical 위 움직임 실패")
+                #움직임이 아래면 + 위로올라가면 dif -
+                if dif<0:
+                    re=int(1)
+                else:
+                    re=int(-1)
+                for i in range(1,abs(dif)):
+                    if i < abs(dif):
+                        print("i",i)
+                        print("re",re)
+                        print("dif",dif)
+                        print("i",board[i_from-(re*i)][j_from])
+                        if board[i_from-(re*i)][j_from] != EMPTY:
+                            print("vertical 움직임 실패")
                             is_ok=False
-                            break
-            if is_ok:
-                    board[i_from][j_from]=EMPTY
-                    board[i_to][j_to] = from_positon[2] + ROOK
-                    return True, board, f"{horse_color} ROOK {from_positon[:2]},{to_position}로 이동"
+                            return False, board, "말의 이동위치로 가기 전 방해물이 있습니다"
+                #움직이는 위치 전까지 방해물이 없다면
+                if is_ok==True:
+                    #그리고 가는곳이 비어있다면
+                    if board[i_to][j_to] == EMPTY:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + ROOK
+                        return True, board, f"{horse_color} ROOK을 {from_positon[:2]} 에서 {to_position}로 이동"
+                    #가는곳에 나의말이 있다
+                    elif board[i_from][j_from][0]==board[i_to][j_to][0]:
+                        return False, board, "말의 이동위치에 나의 말이 있습니다"
+                    #가는곳에 상대방의 말이 있다
+                    else:
+                        board[i_from][j_from]=EMPTY
+                        board[i_to][j_to] = from_positon[2] + ROOK
+                        return True, board, f"내 {horse_color} ROOK 을 {from_positon[:2]} 에서 {to_position}로 이동하며 상대방의{board[i_to][j_to][1]}을 잡았습니다"
+            #가로 세로로 움직이는 경우가 아닐때
+            else:
+                return False, board, "ROOK은 대각선으로 이동할 수 없습니다"
+        #여기를 세분화 하면 정보를 많이 줄 수 있다 에러에 대한
+        # isVaild=isValid_from and isValid_to and isVaild_same_positon and isValid_pick_horse
         else:
-            print("룩 vaild 실패")
-            return False, board, "check your position"
+            if isVaild_same_positon==False:
+                return False, board, "같은 자리로 움직일 수 없습니다."
+            elif isValid_pick_horse==False:
+                return False, board, "이동하려는 체스말이 그 자리에 없습니다."
+            else:
+            #여기를 세분화 하면 정보를 많이 줄 수 있다 에러에 대한
+                print("룩 vaild 실패")
+                return False, board, "선택할 수 없는 말 입니다."
+
+        """======================================"""
+        # if isVaild:
+        #     is_ok=True
+        #     if isVaild_horizon:
+        #         print("호리즌",isVaild_horizon)
+        #         dif=j_to-j_from
+        #         #움직일수 있는 곳을 확인한다
+        #         #공격하려면 한칸 전까지만 확인하고 움직이는곳에 상대말이라면
+        #         for i in range(1,abs(dif)+1):
+        #             # i_from이 a1 이면 i,j는 0부터 해서 i=7 j=0이 된다
+        #             #여기서 조건이 되면 + 된다면 위, 오른쪽 - 되면 아래, 왼쪽
+        #             #위로 움직이면 i_dif가 -된다
+        #             #6-8 =-2움직임 = 위
+        #             #8-6 = 2움직임 = 아래
+        #             if i < dif:
+        #                 if board[i_from][j_from+i] != EMPTY:
+        #                     print("horizon 움직임 실패")
+        #                     is_ok=False
+        #                     break
+
+        #     elif isVaild_vertical:
+        #         print("버티컬",isVaild_vertical)
+        #         dif=i_to-i_from
+        #         for i in range(1,abs(dif)+1):
+        #             #룩이 위로움직냐 아래로 움직이냐
+        #             #룩 위로 움직임
+        #             if i > dif:
+        #                 if board[i_from-i][j_from] != EMPTY:
+        #                     #전부다 확인하고 그 조건이 맞으면 옮겨야함
+        #                     #5에서 0으로 이동 dif=-5
+        #                     #0-7범위 여기범위에서는
+        #                     #b3 b8이 뚫린다 범위 체크다시 확인
+        #                     #5->0
+        #                     #0-5까지 확인
+        #                     print("i",i)
+        #                     print("vertical 위 움직임 실패")
+        #                     is_ok=False
+        #                     break
+        #     if is_ok:
+        #             board[i_from][j_from]=EMPTY
+        #             board[i_to][j_to] = from_positon[2] + ROOK
+        #             return True, board, f"{horse_color} ROOK {from_positon[:2]},{to_position}로 이동"
+        # else:
+        #     print("룩 vaild 실패")
+        #     return False, board, "check your position"
+        """======================================"""
+
 
     #같은자리 금지
     #대각선 다른말의 유무
     #절대값 같아야함
     #i차이 j차이가 같아야 한다
     #a1 b2 c3 d4
-
     @classmethod
     def move_bishop(cls,from_positon, to_position, board):
         horse_color= from_positon[-2]
