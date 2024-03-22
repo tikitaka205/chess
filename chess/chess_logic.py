@@ -492,12 +492,29 @@ class Chess:
         if isValid:
             print("KNIGHT valid")
             print("KNIGHT move")
-            board[i_from][j_from]=EMPTY
-            board[i_to][j_to] = from_positon[2] + KNIGHT
-            return True, board, f"{horse_color} KNIGHT {from_positon[:2]},{to_position}로 이동"
+            if board[i_to][j_to] == EMPTY:
+                board[i_from][j_from]=EMPTY
+                board[i_to][j_to] = from_positon[2] + KNIGHT
+                return True, board, f"{horse_color} KNIGHT 을 {from_positon[:2]} 에서 {to_position}로 이동"
+            #가는곳에 나의말이 있다
+            elif board[i_from][j_from][0]==board[i_to][j_to][0]:
+                return False, board, "말의 이동위치에 나의 말이 있습니다"
+            #가는곳에 상대방의 말이 있다
+            else:
+                board[i_from][j_from]=EMPTY
+                board[i_to][j_to] = from_positon[2] + KNIGHT
+                return True, board, f"{horse_color} KNIGHT 을 {from_positon[:2]} 에서 {to_position}로 이동하며 {board[i_to][j_to][1]}을 잡았습니다"
+
+            # board[i_from][j_from]=EMPTY
+            # board[i_to][j_to] = from_positon[2] + KNIGHT
+            # return True, board, f"{horse_color} KNIGHT {from_positon[:2]},{to_position}로 이동"
         else:
-            print("KNIGHT invalid")
-            return False, board, "check your position"
+            if isVaild_position_1==False or isVaild_position_2==False:
+                return False, board, "KNIGHT가 움직일 수 있는 위치가 아닙니다"
+            elif isValid_pick_horse==False:
+                return False, board, "이동하려는 체스말이 그 자리에 없습니다."
+            else:
+                return False, board, "선택 불가능한 위치 이거나 움직일 수 없는 위치 입니다"
 
         #TODO to_position이동시 체크가 되면 안된다
         #TODO 여기서 같은팀 공격불가 기능 만들어보자
