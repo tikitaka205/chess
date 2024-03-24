@@ -56,6 +56,10 @@ class ChessView(APIView):
     # player_ready_check and player_2 save
     # 내가 1이면 1레디 2가 없으면 저장하고 2도 레디 
     def put(self, request):
+        """
+        chess ready
+        
+        """
         # print(request.data.get('user_id'))
         # print("game_id",request.data.get('game_id'))
         game_id=int(request.data.get('game_id'))
@@ -112,7 +116,11 @@ class ChessView(APIView):
             "ready_state":"game_start"
             }
             if game.player_1_ready and game.player_2_ready:
-                return Response({"player":"player_2","board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
+                return Response({
+                    "player":"player_2",
+                    "board_state":board_state,
+                    "ready_state":"game_start"},
+                    status=status.HTTP_200_OK)
             return Response({"ready_state":"player_2_False"},status=status.HTTP_200_OK)
 
         elif game.player_1.id!=user_id and game.player_2.id==user_id and game.player_2_ready==False:

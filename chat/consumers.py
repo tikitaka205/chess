@@ -5,10 +5,22 @@ from channels.generic.websocket import WebsocketConsumer
 # from .models import ChessLog
 # from rest_framework import status
 from chess.chess_logic import Chess
+from user.models import User
+from chess.models import ChessLog
 import ast
 import json
 import re
+from django.db.models import Q
+import timeit
+import redis
 
+# 레디스 연결 설정
+redis_host = 'localhost'
+redis_port = 6379
+redis_password = None
+
+# 레디스 클라이언트 생성
+redis_client = redis.StrictRedis(host=redis_host, port=redis_port, password=redis_password, decode_responses=True)
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -31,6 +43,9 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     #상대가 보내면 바로 나에게 보임
     def receive(self, text_data):
+        """
+        실시간 메세지 보냈을때 구별, 처리
+        """
         print("=======text_data",text_data)
         text_data_json = json.loads(text_data)
         print(text_data_json)
@@ -46,18 +61,28 @@ class ChatConsumer(WebsocketConsumer):
         if text_data_json["type"]=="start":
             """
             다른사람에게 게임시작 알림
+            put요청으로 플레이어 확인되면 띄워주세요 요청이 오는거임
+            여기서 리버스를 보내주기만 하는거지
             """
             alarm="GAME START"
             board_state = text_data_json["board"]
             async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name, {"type": "chat.message", "board_state":board_state, "alarm":alarm ,"type_name":"board_state"}
+                self.room_group_name, {
+                    "type": "chat.message", 
+                    "board_state":board_state, 
+                    "alarm":alarm ,
+                    "type_name":"board_state"}
             )
 
         #          'a7bP','a6'
         if text_data_json["type"]=="horse":
+            """
+            말을 옮기는 메세지
+            캐시를 사용하기위해 아이디를 가져옴
+            """
             horse = text_data_json["horse"]
+            user_id = text_data_json["user_id"]
             board_2 = text_data_json["board"]
-
             #preprocessing for parsing
             #[부터 시작해서 끝에 ]인데 왜 성공?
             board_make_flag = board_2.replace('[[','.[')
@@ -111,6 +136,7 @@ class ChatConsumer(WebsocketConsumer):
                     print(board_state)
 
 
+
                 elif horse_type=="B":
                     result=Chess.move_bishop(from_positon,to_position,board_state)
                     board_state=result[1]
@@ -150,6 +176,35 @@ class ChatConsumer(WebsocketConsumer):
                     print(alarm)
                     print(result)
                     print("board_state",board_state)
+
+                #움직인 후 체스판을 캐시에 저장
+                #db에 저장하는것 비교해보자
+                # 가장 최근에 생성된 체스 게임 기록을 가져옴
+                start_time = timeit.default_timer()
+                user=User.objects.get(id=user_id)
+                for i in range(1000):
+                    latest_chess_game = ChessLog.objects.filter(Q(player_1=user_id) | Q(player_2=user_id)).order_by('-created_at').first()
+                    latest_chess_game.board_state=board_state
+                    latest_chess_game.turn=user
+                    latest_chess_game.save()
+                end_time = timeit.default_timer()
+                print(end_time - start_time)
+
+                user1_room_id = "room1"
+                user1_room_data = {
+                    "user_id": user_id,
+                    "chessboard": str(board_state),
+                    "turn": user_id,
+                }
+                set_room_data(user1_room_id,user1_room_data)
+                start_time_redis = timeit.default_timer()
+                get_room=get_room_data("room1")
+                for i in range(1000):
+                    get_room_chessboard=get_room.get("chessboard",None)
+                    update_room_data(user1_room_id, "chessboard", str(board_state))
+                end_time_redis = timeit.default_timer()
+                print(get_room_chessboard)
+                print(end_time_redis - start_time_redis)
             else:
                 alarm=is_valid_input_str[1]
             async_to_sync(self.channel_layer.group_send)(
@@ -169,3 +224,13 @@ class ChatConsumer(WebsocketConsumer):
             message = event["message"]
             type_name = event["type_name"]
             self.send(text_data=json.dumps({"message": message,"type_name":type_name}))
+
+
+def set_room_data(room_id, room_data):
+    redis_client.hmset(room_id, room_data)
+
+def get_room_data(room_id):
+    return redis_client.hgetall(room_id)
+
+def update_room_data(room_id, key, value):
+    redis_client.hset(room_id, key, value)
