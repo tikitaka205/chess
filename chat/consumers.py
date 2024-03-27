@@ -80,35 +80,29 @@ class ChatConsumer(WebsocketConsumer):
             말을 옮기는 메세지
             캐시를 사용하기위해 아이디를 가져옴
             """
+        
+            #data parsing
             horse = text_data_json["horse"]
             user_id = text_data_json["user_id"]
-            board_2 = text_data_json["board"]
-            #preprocessing for parsing
-            #[부터 시작해서 끝에 ]인데 왜 성공?
-            board_make_flag = board_2.replace('[[','.[')
-            board_make_flag_2 = board_make_flag.replace(']]','].')
-            pattern = re.compile(r"\[.*?\]")
-            data_list_strs = re.findall(pattern, board_make_flag_2)
-            board_state = [eval(lst) for lst in data_list_strs]
+            board = text_data_json["board"]
+            board_state=json.loads(board)
 
-            #preprocessing for horse move
+            # #preprocessing for horse move
             pattern = re.compile(r'([a-z][1-8][a-z][A-Z])|([a-z][1-8])')
             matches = pattern.findall(horse)
             horse_move = ["".join(match) for match in matches if any(match)]
             is_valid_input_str = Chess.is_valid_input_str(horse)
-            print("is_valid_input_str",is_valid_input_str)
-            # print("is_valid_input_str",is_valid_input_str[0])
+
             #룸번호 유저
             #룸번호로 방 플레이어, 턴 보고 응답
-            #체스
-#           'a7bP','a5'
-#           'c8bB','a6'
-#           'b1wN','c3'
-#           'a8bR','a6'
-
-#           'e2wP','e4'
-#           'e1wQ','e3'          퀸
-#           'd1wK','e2'          킹
+            #체스  
+            #           'a7bP','a5'
+            #           'c8bB','a6'
+            #           'b1wN','c3'
+            #           'a8bR','a6'
+            #           'e2wP','e4'
+            #           'e1wQ','e3'          퀸
+            #           'd1wK','e2'          킹
             if is_valid_input_str[0]:
                 from_positon=horse_move[0]
                 to_position=horse_move[1]
@@ -182,7 +176,7 @@ class ChatConsumer(WebsocketConsumer):
                 # 가장 최근에 생성된 체스 게임 기록을 가져옴
                 start_time = timeit.default_timer()
                 user=User.objects.get(id=user_id)
-                for i in range(1000):
+                for i in range(1):
                     latest_chess_game = ChessLog.objects.filter(Q(player_1=user_id) | Q(player_2=user_id)).order_by('-created_at').first()
                     latest_chess_game.board_state=board_state
                     latest_chess_game.turn=user
@@ -199,7 +193,7 @@ class ChatConsumer(WebsocketConsumer):
                 set_room_data(user1_room_id,user1_room_data)
                 start_time_redis = timeit.default_timer()
                 get_room=get_room_data("room1")
-                for i in range(1000):
+                for i in range(1):
                     get_room_chessboard=get_room.get("chessboard",None)
                     update_room_data(user1_room_id, "chessboard", str(board_state))
                 end_time_redis = timeit.default_timer()
@@ -234,3 +228,5 @@ def get_room_data(room_id):
 
 def update_room_data(room_id, key, value):
     redis_client.hset(room_id, key, value)
+
+
