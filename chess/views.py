@@ -60,8 +60,6 @@ class ChessView(APIView):
         chess ready
         
         """
-        # print(request.data.get('user_id'))
-        # print("game_id",request.data.get('game_id'))
         game_id=int(request.data.get('game_id'))
         user_id=int(request.data.get('user_id'))
         game=get_object_or_404(ChessLog, id=game_id)
@@ -69,9 +67,7 @@ class ChessView(APIView):
         chess_instance.create_board()
         chess_instance.set_game()
         board_state=chess_instance.board
-        # print(game.player_1_ready)
-        # print(game.player_2_ready)
-        # print(game.player_1_ready and game.player_2_ready)
+
         if game.player_1.id==user_id and game.player_1_ready==False:
             game.player_1_ready=True
             game.save()
@@ -83,7 +79,6 @@ class ChessView(APIView):
             "ready_state":"game_start"
             }
             if game.player_1_ready and game.player_2_ready:
-                
                 return Response(data,status=status.HTTP_200_OK)
             return Response({"ready_state":"player_1_True"},status=status.HTTP_200_OK)
 
@@ -139,15 +134,7 @@ class ChessView(APIView):
         else:
             print("=====")
             pass
-        # print(game.player_1_ready)
-        # print(game.player_2_ready)
-        # if game.player_1_ready and game.player_2_ready:
-        #     return Response({"ready_state":"game_start"},status=status.HTTP_200_OK)
-        # else:
-        #     print("false")
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    # and game.player_1_ready=='1'
     # delete game
     def delete(self, request):
         pass

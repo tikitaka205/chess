@@ -129,8 +129,6 @@ class ChatConsumer(WebsocketConsumer):
                     print(result)
                     print(board_state)
 
-
-
                 elif horse_type=="B":
                     result=Chess.move_bishop(from_positon,to_position,board_state)
                     board_state=result[1]
@@ -174,31 +172,33 @@ class ChatConsumer(WebsocketConsumer):
                 #움직인 후 체스판을 캐시에 저장
                 #db에 저장하는것 비교해보자
                 # 가장 최근에 생성된 체스 게임 기록을 가져옴
-                start_time = timeit.default_timer()
-                user=User.objects.get(id=user_id)
-                for i in range(1):
-                    latest_chess_game = ChessLog.objects.filter(Q(player_1=user_id) | Q(player_2=user_id)).order_by('-created_at').first()
-                    latest_chess_game.board_state=board_state
-                    latest_chess_game.turn=user
-                    latest_chess_game.save()
-                end_time = timeit.default_timer()
-                print(end_time - start_time)
+                # start_time = timeit.default_timer()
+                # user=User.objects.get(id=user_id)
+                # for i in range(1):
+                #     latest_chess_game = ChessLog.objects.filter(Q(player_1=user_id) | Q(player_2=user_id)).order_by('-created_at').first()
+                #     latest_chess_game.board_state=board_state
+                #     latest_chess_game.turn=user
+                #     latest_chess_game.save()
+                # end_time = timeit.default_timer()
+                # print(end_time - start_time)
 
-                user1_room_id = "room1"
-                user1_room_data = {
-                    "user_id": user_id,
-                    "chessboard": str(board_state),
-                    "turn": user_id,
-                }
-                set_room_data(user1_room_id,user1_room_data)
-                start_time_redis = timeit.default_timer()
-                get_room=get_room_data("room1")
-                for i in range(1):
-                    get_room_chessboard=get_room.get("chessboard",None)
-                    update_room_data(user1_room_id, "chessboard", str(board_state))
-                end_time_redis = timeit.default_timer()
-                print(get_room_chessboard)
-                print(end_time_redis - start_time_redis)
+                # user1_room_id = "room1"
+                # user1_room_data = {
+                #     "user_id": user_id,
+                #     "chessboard": str(board_state),
+                #     "turn": user_id,
+                # }
+                
+                # set_room_data(user1_room_id,user1_room_data)
+                # start_time_redis = timeit.default_timer()
+                # get_room=get_room_data("room1")
+                # for i in range(1):
+                #     get_room_chessboard=get_room.get("chessboard",None)
+                #     update_room_data(user1_room_id, "chessboard", str(board_state))
+                # end_time_redis = timeit.default_timer()
+                # print(get_room_chessboard)
+                # print(end_time_redis - start_time_redis)
+
             else:
                 alarm=is_valid_input_str[1]
             async_to_sync(self.channel_layer.group_send)(
