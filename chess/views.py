@@ -6,7 +6,10 @@ from .serializers import GameInfoSerializer, ChessMoveSerializer
 from .models import ChessLog, User
 from rest_framework import status
 from .chess_logic import Chess
+import redis
+import json
 
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 class ChessView(APIView):
     def get(self, request):
@@ -44,9 +47,38 @@ class ChessView(APIView):
         board_state=chess_instance.board
         serializer=ChessMoveSerializer(data=request.data)
 
+        #방 아이디 / 유저 아이디 / 턴 / 보드/  플레이어 레디 / 결과 / 움직임 기록/ 왕 위치
         if serializer.is_valid():
             instance=serializer.save(board_state=board_state, player_1=user, turn=user)
             instance_id=instance.id
+            room_id=instance_id
+
+            #레디스에 저장하기 위해 json str로 변경
+            json_string = json.dumps(board_state)
+            print("json_string",json_string)
+            print("json_string",type(json_string))
+            redis_data={
+                "player_1":user_id,
+                "player_2":"",
+                "board_state":json_string,
+                "turn": "player_1",
+                "player_1_ready":"",
+                "player_2_ready":"",
+                "result":"",
+                "chesslog":"",
+                "player_1_king":"",
+                "player_2_king":""
+            }
+            # 캐시에 해시구조로 저장
+            redis_client.hmset(room_id, redis_data)
+
+            # # 데이터 조회
+            # pl=redis_client.hget(room_id,"player_1")
+            # turn=redis_client.hget(room_id,"turn")
+            # get_data=redis_client.hget(room_id,"board_state")
+            # # 바이트로 들어온 데이터 str로 decode 후 json.loads 으로 리스트로 변환
+            # pr=json.loads(get_data.decode('utf-8'))
+
             return Response({"board_state":board_state,"game_id":instance_id},status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -58,8 +90,15 @@ class ChessView(APIView):
     def put(self, request):
         """
         chess ready
-        
         """
+        #플레이어 2 없다면 아이디 나 저장하고 레디로 바꾸고 둘다 레디냐?
+        #
+        user_id.
+        redis_data={
+            "player_1_ready":"",
+            "player_2_ready":"",
+        }
+        redis_client.hmset(game_id,)
         game_id=int(request.data.get('game_id'))
         user_id=int(request.data.get('user_id'))
         game=get_object_or_404(ChessLog, id=game_id)
