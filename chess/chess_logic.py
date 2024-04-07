@@ -140,7 +140,228 @@ class Chess:
             position_str=chr(ord('a')+x)
             self.set_cell(position_str+'2',WHITE+PAWN)
 
-        # self.print_board()
+    # 체크일때 True 그리고 체크인 말의 위치와 그 정보데이터 리턴하자
+    # 말이 체크지 위치주고 그위치에 다른색 말이 공격할 수 있는게 있는지 다 돌려보는 함수
+    @classmethod
+    def isValid_check(cls, positon, board, attack_color = None):
+        """
+        내가 움직였을때 킹 위치 기준 체크 확인
+        """
+        #00이 면 패스 같은팀 뭐 11이면 왼 오 아래 위 따로 확인
+        print(positon) #a5wQ   
+        print(positon[:2]) #a5wQ   
+        isValid_from, i_positon, j_positon=cls.transform_str_to_num(positon[:2])
+        horse_color= board[i_positon][j_positon][0]
+        print(horse_color) #w
+
+        # 체크메이트를 막을때 00 일경우에 색이없는데 공격자 색을 보내줌
+        if attack_color is None:
+            if horse_color == "w":
+                op_color = "b"
+            elif horse_color == "b":
+                op_color = "w"
+        else:
+            horse_color = attack_color
+        print(op_color)#b
+        print(i_positon)
+        print(j_positon)
+        #TODO 직선 체크 R,Q
+        left = int(8-(8-j_positon))
+        right = int(8-j_positon)
+        up = int(8-(8-i_positon))
+        down = int(8-i_positon)
+        #왼쪽
+        # if i_positon + 2 < len(board) and j_positon + 1 < len(board[0]):
+        if j_positon - 1 >= 0:
+            for i in range(1,left+1):
+                print(left)
+                print("왼쪽 확인중")
+                print("board[i_positon][j_positon]",board[i_positon][j_positon])
+                print("board[i_positon][j_positon][0]",board[i_positon][j_positon][0])
+                if board[i_positon][j_positon-i][0]==horse_color:
+                    print("같은편이라서 괜찮")
+                    break
+                    # return True, "같은편이라서 괜찮"
+                elif board[i_positon][j_positon-i]!=EMPTY:
+                    if board[i_positon][j_positon-i]==op_color+"R" or board[i_positon][j_positon-1]==op_color+"Q":
+                        print("board[i_positon][j_positon-i]==op_color+R",board[i_positon][j_positon-i]==op_color+"Q")
+                        return True, board[i_positon][j_positon-i], i_positon, j_positon-i, "위치에서 체크입니다"
+                else:
+                    pass
+        if j_positon + 1 < 8:
+            for i in range(1,right+1):
+                print(right)
+                print("오른쪽 확인중")
+                print("board[i_positon][j_positon][0]",board[i_positon][j_positon][0])
+                if board[i_positon][j_positon+i][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon][j_positon+i]!=EMPTY:
+                    if board[i_positon][j_positon+i]==op_color+"R" or board[i_positon][j_positon+1]==op_color+"Q":
+                        return True, board[i_positon][j_positon+i], i_positon, j_positon+i, "위치에서 체크입니다"
+
+                else:
+                    pass
+        if i_positon - 1 >= 0:
+            for i in range(1,up+1):
+                print("위 확인중")
+                if board[i_positon-i][j_positon][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon-i][j_positon]!=EMPTY:
+                    if board[i_positon-i][j_positon]==op_color+"R" or board[i_positon-i][j_positon]==op_color+"Q":
+                        return True, board[i_positon-i][j_positon], i_positon-i, j_positon, "위치에서 체크입니다"
+                else:
+                    pass
+
+        print("아래 시작전")
+        if i_positon + 1 < 8:
+            for i in range(1,down+1):
+                print("아래 확인중")
+                if board[i_positon+i][j_positon][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon+i][j_positon]!=EMPTY:
+                    if board[i_positon+i][j_positon]==op_color+"R" or board[i_positon+i][j_positon]==op_color+"Q":
+                        return True, board[i_positon+i][j_positon], i_positon+i, j_positon, "위치에서 체크입니다"
+                else:
+                    pass
+
+        #TODO 대각선 체크 Q,B
+        #오른쪽 아래
+        #왼쪽 아래
+        #왼쪽 위
+        #오른쪽 위
+        #00 30
+        #30이면 33에서 계산하는것과 같은 오른쪽아래의 개수임
+        #옮기고 내 킹 계산 내가 킹을 옮겼다면 옮긴 킹위치데이터 줘야함
+        #내가 다른말 움직여도 내꺼하고 상대방체크임 내가 뭘 피해서 공격하는거 생각하면 그사람 턴에 다 계산
+        #00 11 22 33 44 숫자 큰걸로 같게만든 위치와 확인하는 수 같다
+        # large_min=max(i_positon,j_positon)
+        # diagonal_position=8-large_positon
+        # print("large_positon",large_positon)
+        # print("diagonal_position",diagonal_position)
+        print("++대각 확인전")
+
+        #오른쪽 아래 대각선
+        if j_positon + 1 <= 8:
+            for i in range(1, min(7 - i_positon, 7 - j_positon)):
+                print("대각선")
+                if board[i_positon+i][j_positon+i][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon+i][j_positon+i]!=EMPTY:
+                    if board[i_positon+i][j_positon+i]==op_color+"B" or board[i_positon+i][j_positon+i]==op_color+"Q":
+                        print("대각 체크있음")
+                        return True, board[i_positon+i][j_positon+i], i_positon+i, j_positon+i, "위치에서 체크입니다"
+                else:
+                    pass
+
+        #왼쪽 아래 대각선
+        if i_positon + 1 <= 8:
+            print("+-대각 확인전")
+            for i in range(1, min(7 - i_positon, j_positon) + 1):
+                print("대각선 확인중")
+                if board[i_positon+i][j_positon-i][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon+i][j_positon-i]!=EMPTY:
+                    if board[i_positon+i][j_positon-i]==op_color+"B" or board[i_positon+i][j_positon-i]==op_color+"Q":
+                        print("대각 체크있음")
+                        return True, board[i_positon+i][j_positon-i], i_positon+i, j_positon-i, "위치에서 체크입니다"
+                else:
+                    pass
+
+        #왼쪽 위 대각선
+        if i_positon + 1 <= 8:
+            print("--대각 확인전")
+            for i in range(1, min(i_positon, j_positon) + 1):
+                if board[i_positon-i][j_positon-i][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon-i][j_positon-i]!=EMPTY:
+                    if board[i_positon-i][j_positon-i]==op_color+"B" or board[i_positon-i][j_positon-i]==op_color+"Q":
+                        print("대각 체크있음")
+                        return True, board[i_positon-i][j_positon-i], i_positon-i, j_positon-i, "위치에서 체크입니다"
+                else:
+                    pass
+
+        #오른쪽 위 대각선
+        if j_positon + 1 <= 8:
+            print("-+대각 확인전")
+            for i in range(1, min(i_positon, 7 - j_positon) + 1):
+                print(i)
+                if board[i_positon-i][j_positon+i][0]==horse_color:
+                    print("break4")
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon-i][j_positon+i]!=EMPTY:
+                    print("대각선 확인중 00이 아님!")
+                    print(board[i_positon-i][j_positon+i])
+                    print(op_color+"B")
+                    print(board[i_positon-i][j_positon+i]==op_color+"Q")
+                    if board[i_positon-i][j_positon+i]==op_color+"B" or board[i_positon-i][j_positon+i]==op_color+"Q":
+                        print("대각 체크있음")
+                        return True, board[i_positon-i][j_positon+i], i_positon-i, j_positon+i, "위치에서 체크입니다"
+                    else:
+                        print("왜 여기로?")
+                else:
+                    print("else")
+                    pass
+
+        #TODO 나이트8개
+        if i_positon + 2 < len(board) and j_positon + 1 < len(board[0]):
+            if board[i_positon+2][j_positon+1]==op_color+"N":
+                return True, board[i_positon+2][j_positon+1], i_positon+2, j_positon+1, "위치에서 체크입니다"
+            else:
+                print("나이트 없어요1")
+        if i_positon + 2 < len(board) and j_positon - 1 < len(board[0]):
+            if board[i_positon+2][j_positon-1]==op_color+"N":
+                return True, board[i_positon+2][j_positon-1], i_positon+2, j_positon-1, "위치에서 체크입니다"
+            else:
+                print("나이트 없어요12")
+        if i_positon - 2 < len(board) and j_positon + 1 < len(board[0]):
+            if board[i_positon-2][j_positon+1]==op_color+"N":
+                return True, board[i_positon-2][j_positon+1], i_positon-2, j_positon+1, "위치에서 체크입니다"
+            else:
+                print("나이트 없어요13")
+        if i_positon - 2 < len(board) and j_positon - 1 < len(board[0]):
+            if board[i_positon-2][j_positon-1]==op_color+"N":
+                return True, board[i_positon-2][j_positon-1], i_positon-2, j_positon-1, "위치에서 체크입니다"
+            else:
+                print("나이트 없어요14")
+        if i_positon + 1 < len(board) and j_positon + 2 < len(board[0]):
+            if board[i_positon+1][j_positon+2]==op_color+"N":
+                return True, board[i_positon+1][j_positon+2], i_positon+1, j_positon+2, "위치에서 체크입니다"
+            else:
+                print("나이트 없어요15")
+        if i_positon - 1 < len(board) and j_positon + 2 < len(board[0]):
+            if board[i_positon-1][j_positon+2]==op_color+"N":
+                return True, board[i_positon-1][j_positon+2], i_positon-1, j_positon+2, "위치에서 체크입니다"
+            else:
+                print("나이트 없어요16")
+        if i_positon + 1 < len(board) and j_positon - 2 < len(board[0]):
+            if board[i_positon+1][j_positon-2]==op_color+"N":
+                return True, board[i_positon+1][j_positon-2], i_positon+1, j_positon-2, "위치에서 체크입니다"
+            else:
+                print("나이트 없어요17")
+        if i_positon - 1 < len(board) and j_positon - 2 < len(board[0]):
+            if board[i_positon-1][j_positon-2]==op_color+"N":
+                return True, board[i_positon-1][j_positon-2], i_positon-1, j_positon-2, "위치에서 체크입니다"
+            else:
+                print("나이트 없어요18")
+
+        #TODO 상대폰
+        if horse_color=="w":
+            if board[i_positon-1][j_positon-1]==op_color+"P":
+                return True, board[i_positon-1][j_positon-1], i_positon-1, j_positon-1, "위치에서 체크입니다"
+            if board[i_positon-1][j_positon+1]==op_color+"P":
+                return True, board[i_positon-1][j_positon+1], i_positon-1, j_positon+1, "위치에서 체크입니다"
+        else:
+            if board[i_positon+1][j_positon-1]==op_color+"P":
+                return True, board[i_positon+1][j_positon-1], i_positon+1, j_positon-1, "위치에서 체크입니다"
+            if board[i_positon+1][j_positon+1]==op_color+"P":
+                return True, board[i_positon+1][j_positon+1], i_positon+1, j_positon+1, "위치에서 체크입니다"
 
     #TODO 지금자리와 옮기는자리 같으면 안된다 #완
     #TODO 옮기려는 부분이 체스판 밖이 아닐까 #완
@@ -493,26 +714,33 @@ class Chess:
             print("KNIGHT valid")
             print("KNIGHT move")
             
-            #나이트 움직임
+            # 나이트 움직임
             if board[i_to][j_to] == EMPTY:
                 board[i_from][j_from]=EMPTY
                 board[i_to][j_to] = from_positon[2] + KNIGHT
 #######
                 print("board",board)
                 print("board",type(board))
-                result = cls.isVaild_check('d1wK', board)
-                if result is not None:
-                    isValid_check, tip = result
+                isValid_check = cls.isValid_check('d1wK', board)
+                # 말 움직이고 상대방킹 기준으로 체크확인
+                # 체크라면?
+                if isValid_check is not None:
+                    isValid_check, attack_piece, attack_i, attack_j, tip = isValid_check
                     print("isValid_check",isValid_check)
+                    print("d1wK 을 기준으로 체크인가? t가 나와야해:",isValid_check)
+                    print("i:",attack_i)
+                    print("j:",attack_j)
                     print("tip",tip)
+                    #TODO 공격하는 말과 공격받은 킹의 위치정보 킹위치 들고오자
+                    return True, board, f"{horse_color} KNIGHT 을 {from_positon[:2]} 에서 {to_position}로 이동하여 체크 했습니다"
+                # 체크가 아니라면
                 else:
                     #현재 플레이어 색 비교해서 내꺼 움직이면 체크인지 확인
                     #내꺼 체크면 나한테만 못움직인다 알려주기
                     #상대방기준 체크이면 알려주기
-                    print("result",result)
-                    # print("tip",tip)
-#########
-                return True, board, f"{horse_color} KNIGHT 을 {from_positon[:2]} 에서 {to_position}로 이동"
+                    print("움직였지만 체크 아님")
+                    return True, board, f"{horse_color} KNIGHT 을 {from_positon[:2]} 에서 {to_position}로 이동"
+########
             
             #가는곳에 나의말이 있다
             elif board[i_from][j_from][0]==board[i_to][j_to][0]:
@@ -522,7 +750,20 @@ class Chess:
             else:
                 board[i_from][j_from]=EMPTY
                 board[i_to][j_to] = from_positon[2] + KNIGHT
-                return True, board, f"{horse_color} KNIGHT 을 {from_positon[:2]} 에서 {to_position}로 이동하며 {board[i_to][j_to][1]}을 잡았습니다"
+                isValid_check = cls.isValid_check('d1wK', board)
+                if isValid_check is not None:
+                    isValid_check, attack_piece, attack_i, attack_j, tip = isValid_check
+                    print("isValid_check",isValid_check)
+                    print("d1wK 을 기준으로 체크인가? t가 나와야해:",isValid_check)
+                    print("i:",attack_i)
+                    print("j:",attack_j)
+                    print("tip",tip)
+                    #TODO 공격하는 말과 공격받은 킹의 위치정보 킹위치 들고오자
+                    return True, board, f"{horse_color} KNIGHT 을 {from_positon[:2]} 에서 {to_position}로 이동하며 {board[i_to][j_to][1]}을 잡았습니다 그리고 체크입니다."
+                # 체크가 아니라면
+                else:
+                    print("움직였지만 체크 아님")
+                    return True, board, f"{horse_color} KNIGHT 을 {from_positon[:2]} 에서 {to_position}로 이동하며 {board[i_to][j_to][1]}을 잡았습니다"
 
         else:
             if isVaild_position_1==False or isVaild_position_2==False:
@@ -731,229 +972,15 @@ class Chess:
             else:
                 return False, board, "선택 불가능한 위치 이거나 움직일 수 없는 위치 입니다"
 
-    # 체크일때 True 그리고 체크인 말의 위치와 그 정보데이터 리턴하자
-    # 말이 체크지 위치주고 그위치에 다른색 말이 공격할 수 있는게 있는지 다 돌려보는 함수
-    @classmethod
-    def isValid_check(cls, positon, board, attack_color = None):
-        #00이 면 패스 같은팀 뭐 11이면 왼 오 아래 위 따로 확인
-        print(positon) #a5wQ   
-        print(positon[:2]) #a5wQ   
-        isValid_from, i_positon, j_positon=cls.transform_str_to_num(positon[:2])
-        horse_color= board[i_positon][j_positon][0]
-        print(horse_color) #w
 
-        # 체크메이트를 막을때 00 일경우에 색이없는데 공격자 색을 보내줌
-        if attack_color is None:
-            if horse_color == "w":
-                op_color = "b"
-            elif horse_color == "b":
-                op_color = "w"
-        else:
-            horse_color = attack_color
-        print(op_color)#b
-        print(i_positon)
-        print(j_positon)
-        #TODO 직선 체크 R,Q
-        left = int(8-(8-j_positon))
-        right = int(8-j_positon)
-        up = int(8-(8-i_positon))
-        down = int(8-i_positon)
-        #왼쪽
-        # if i_positon + 2 < len(board) and j_positon + 1 < len(board[0]):
-        if j_positon - 1 >= 0:
-            for i in range(1,left+1):
-                print(left)
-                print("왼쪽 확인중")
-                print("board[i_positon][j_positon]",board[i_positon][j_positon])
-                print("board[i_positon][j_positon][0]",board[i_positon][j_positon][0])
-                if board[i_positon][j_positon-i][0]==horse_color:
-                    print("같은편이라서 괜찮")
-                    break
-                    # return True, "같은편이라서 괜찮"
-                elif board[i_positon][j_positon-i]!=EMPTY:
-                    if board[i_positon][j_positon-i]==op_color+"R" or board[i_positon][j_positon-1]==op_color+"Q":
-                        print("board[i_positon][j_positon-i]==op_color+R",board[i_positon][j_positon-i]==op_color+"Q")
-                        return True, board[i_positon][j_positon-i], i_positon, j_positon-i, "위치에서 체크입니다"
-                else:
-                    pass
-        if j_positon + 1 < 8:
-            for i in range(1,right+1):
-                print(right)
-                print("오른쪽 확인중")
-                print("board[i_positon][j_positon][0]",board[i_positon][j_positon][0])
-                if board[i_positon][j_positon+i][0]==horse_color:
-                    # return True, "같은편이라서 괜찮"
-                    break
-                elif board[i_positon][j_positon+i]!=EMPTY:
-                    if board[i_positon][j_positon+i]==op_color+"R" or board[i_positon][j_positon+1]==op_color+"Q":
-                        return True, board[i_positon][j_positon+i], i_positon, j_positon+i, "위치에서 체크입니다"
-
-                else:
-                    pass
-        if i_positon - 1 >= 0:
-            for i in range(1,up+1):
-                print("위 확인중")
-                if board[i_positon-i][j_positon][0]==horse_color:
-                    # return True, "같은편이라서 괜찮"
-                    break
-                elif board[i_positon-i][j_positon]!=EMPTY:
-                    if board[i_positon-i][j_positon]==op_color+"R" or board[i_positon-i][j_positon]==op_color+"Q":
-                        return True, board[i_positon-i][j_positon], i_positon-i, j_positon, "위치에서 체크입니다"
-                else:
-                    pass
-
-        print("아래 시작전")
-        if i_positon + 1 < 8:
-            for i in range(1,down+1):
-                print("아래 확인중")
-                if board[i_positon+i][j_positon][0]==horse_color:
-                    # return True, "같은편이라서 괜찮"
-                    break
-                elif board[i_positon+i][j_positon]!=EMPTY:
-                    if board[i_positon+i][j_positon]==op_color+"R" or board[i_positon+i][j_positon]==op_color+"Q":
-                        return True, board[i_positon+i][j_positon], i_positon+i, j_positon, "위치에서 체크입니다"
-                else:
-                    pass
-
-        #TODO 대각선 체크 Q,B
-        #오른쪽 아래
-        #왼쪽 아래
-        #왼쪽 위
-        #오른쪽 위
-        #00 30
-        #30이면 33에서 계산하는것과 같은 오른쪽아래의 개수임
-        #옮기고 내 킹 계산 내가 킹을 옮겼다면 옮긴 킹위치데이터 줘야함
-        #내가 다른말 움직여도 내꺼하고 상대방체크임 내가 뭘 피해서 공격하는거 생각하면 그사람 턴에 다 계산
-        #00 11 22 33 44 숫자 큰걸로 같게만든 위치와 확인하는 수 같다
-        # large_min=max(i_positon,j_positon)
-        # diagonal_position=8-large_positon
-        # print("large_positon",large_positon)
-        # print("diagonal_position",diagonal_position)
-        print("++대각 확인전")
-
-        #오른쪽 아래 대각선
-        if j_positon + 1 <= 8:
-            for i in range(1, min(7 - i_positon, 7 - j_positon)):
-                print("대각선")
-                if board[i_positon+i][j_positon+i][0]==horse_color:
-                    # return True, "같은편이라서 괜찮"
-                    break
-                elif board[i_positon+i][j_positon+i]!=EMPTY:
-                    if board[i_positon+i][j_positon+i]==op_color+"B" or board[i_positon+i][j_positon+i]==op_color+"Q":
-                        print("대각 체크있음")
-                        return True, board[i_positon+i][j_positon+i], i_positon+i, j_positon+i, "위치에서 체크입니다"
-                else:
-                    pass
-
-        #왼쪽 아래 대각선
-        if i_positon + 1 <= 8:
-            print("+-대각 확인전")
-            for i in range(1, min(7 - i_positon, j_positon) + 1):
-                print("대각선 확인중")
-                if board[i_positon+i][j_positon-i][0]==horse_color:
-                    # return True, "같은편이라서 괜찮"
-                    break
-                elif board[i_positon+i][j_positon-i]!=EMPTY:
-                    if board[i_positon+i][j_positon-i]==op_color+"B" or board[i_positon+i][j_positon-i]==op_color+"Q":
-                        print("대각 체크있음")
-                        return True, board[i_positon+i][j_positon-i], i_positon+i, j_positon-i, "위치에서 체크입니다"
-                else:
-                    pass
-
-        #왼쪽 위 대각선
-        if i_positon + 1 <= 8:
-            print("--대각 확인전")
-            for i in range(1, min(i_positon, j_positon) + 1):
-                if board[i_positon-i][j_positon-i][0]==horse_color:
-                    # return True, "같은편이라서 괜찮"
-                    break
-                elif board[i_positon-i][j_positon-i]!=EMPTY:
-                    if board[i_positon-i][j_positon-i]==op_color+"B" or board[i_positon-i][j_positon-i]==op_color+"Q":
-                        print("대각 체크있음")
-                        return True, board[i_positon-i][j_positon-i], i_positon-i, j_positon-i, "위치에서 체크입니다"
-                else:
-                    pass
-
-        #오른쪽 위 대각선
-        if j_positon + 1 <= 8:
-            print("-+대각 확인전")
-            for i in range(1, min(i_positon, 7 - j_positon) + 1):
-                print(i)
-                if board[i_positon-i][j_positon+i][0]==horse_color:
-                    print("break4")
-                    # return True, "같은편이라서 괜찮"
-                    break
-                elif board[i_positon-i][j_positon+i]!=EMPTY:
-                    print("대각선 확인중 00이 아님!")
-                    print(board[i_positon-i][j_positon+i])
-                    print(op_color+"B")
-                    print(board[i_positon-i][j_positon+i]==op_color+"Q")
-                    if board[i_positon-i][j_positon+i]==op_color+"B" or board[i_positon-i][j_positon+i]==op_color+"Q":
-                        print("대각 체크있음")
-                        return True, board[i_positon-i][j_positon+i], i_positon-i, j_positon+i, "위치에서 체크입니다"
-                    else:
-                        print("왜 여기로?")
-                else:
-                    print("else")
-                    pass
-
-        #TODO 나이트8개
-        if i_positon + 2 < len(board) and j_positon + 1 < len(board[0]):
-            if board[i_positon+2][j_positon+1]==op_color+"N":
-                return True, board[i_positon+2][j_positon+1], i_positon+2, j_positon+1, "위치에서 체크입니다"
-            else:
-                return False, "같은편이나 다른종류의 말"
-        if i_positon + 2 < len(board) and j_positon - 1 < len(board[0]):
-            if board[i_positon+2][j_positon-1]==op_color+"N":
-                return True, board[i_positon+2][j_positon-1], i_positon+2, j_positon-1, "위치에서 체크입니다"
-            else:
-                return False, "같은편이나 다른종류의 말"
-        if i_positon - 2 < len(board) and j_positon + 1 < len(board[0]):
-            if board[i_positon-2][j_positon+1]==op_color+"N":
-                return True, board[i_positon-2][j_positon+1], i_positon-2, j_positon+1, "위치에서 체크입니다"
-            else:
-                return False, "같은편이나 다른종류의 말"
-        if i_positon - 2 < len(board) and j_positon - 1 < len(board[0]):
-            if board[i_positon-2][j_positon-1]==op_color+"N":
-                return True, board[i_positon-2][j_positon-1], i_positon-2, j_positon-1, "위치에서 체크입니다"
-            else:
-                return False, "같은편이나 다른종류의 말"
-        if i_positon + 1 < len(board) and j_positon + 2 < len(board[0]):
-            if board[i_positon+1][j_positon+2]==op_color+"N":
-                return True, board[i_positon+1][j_positon+2], i_positon+1, j_positon+2, "위치에서 체크입니다"
-            else:
-                return False, "같은편이나 다른종류의 말"
-        if i_positon - 1 < len(board) and j_positon + 2 < len(board[0]):
-            if board[i_positon-1][j_positon+2]==op_color+"N":
-                return True, board[i_positon-1][j_positon+2], i_positon-1, j_positon+2, "위치에서 체크입니다"
-            else:
-                return False, "같은편이나 다른종류의 말"
-        if i_positon + 1 < len(board) and j_positon - 2 < len(board[0]):
-            if board[i_positon+1][j_positon-2]==op_color+"N":
-                return True, board[i_positon+1][j_positon-2], i_positon+1, j_positon-2, "위치에서 체크입니다"
-            else:
-                return False, "같은편이나 다른종류의 말"
-        if i_positon - 1 < len(board) and j_positon - 2 < len(board[0]):
-            if board[i_positon-1][j_positon-2]==op_color+"N":
-                return True, board[i_positon-1][j_positon-2], i_positon-1, j_positon-2, "위치에서 체크입니다"
-            else:
-                return False, "같은편이나 다른종류의 말"
-
-        #TODO 상대폰
-        if horse_color=="w":
-            if board[i_positon-1][j_positon-1]==op_color+"P":
-                return True, board[i_positon-1][j_positon-1], i_positon-1, j_positon-1, "위치에서 체크입니다"
-            if board[i_positon-1][j_positon+1]==op_color+"P":
-                return True, board[i_positon-1][j_positon+1], i_positon-1, j_positon+1, "위치에서 체크입니다"
-        else:
-            if board[i_positon+1][j_positon-1]==op_color+"P":
-                return True, board[i_positon+1][j_positon-1], i_positon+1, j_positon-1, "위치에서 체크입니다"
-            if board[i_positon+1][j_positon+1]==op_color+"P":
-                return True, board[i_positon+1][j_positon+1], i_positon+1, j_positon+1, "위치에서 체크입니다"
 
     #체크메이트에 사용하는 킹이 움직일 수 있는 자리 판독
     @classmethod
     def isValid_king_move(cls, i_positon, j_positon):
+        """
+        킹이 움직일 수 있는 곳을 돌려주는 함수
+        체크메이트 함수에서 사용
+        """
         vaild_move=[]
         for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
@@ -968,6 +995,10 @@ class Chess:
     # 체크메이트 말로 막을 수 있는지 확인
     @classmethod
     def bolck_position(i_attack, j_attack, i_positon, j_positon):
+        """
+        공격말과 킹의 위치를 사용하여 둘 사이의 공간을 모두 구하는 함수
+        블록 체크메이트 함수에서 사용
+        """
         valid_move = []
 
         # 공격말 위치  먼저 넣기
@@ -1054,6 +1085,9 @@ class Chess:
     @classmethod
     #TODO 폰 첫움직임이면 두칸 움직여서 막을 수 있음 직선으로 먹는건 불가능
     def isValid_block_checkmate(cls, i_attack, j_attack, i_positon, j_positon, board):
+        """
+        체크 상황에서 킹이 움직일 수 없고 다른말로 체크메이트를 막을 수 있는지 확인
+        """
         attack_color=board[i_attack][j_attack][0]
         attack_horse=board[i_attack][j_attack][1]
         horse_color=board[i_positon][j_positon][0]
@@ -1072,19 +1106,57 @@ class Chess:
         # 나머지는 위치를 생각해보고 일단
         # 체크인거 확인했으니 그 체크가 뭔지 알 수 있을까?
         # 체크함수 썼을때 00이면 상대색을 알수가 없어 - 색 파라미터 넣어줌
+        # TODO 길을 폰으로 막을수 있냐
+        # TODO refactoring 가능할 것 같다 공격 킹 위치를 아니까 그걸로 한칸차이면
+        # 체크확인함수 다시만들어서 가능한걸 전부 저장하는 함수가 필요할듯
         elif attack_horse == "R" or attack_horse == "Q" or attack_horse == "B":
             #bolck_position 함수로 막을 수있는 함수 불러옴 공격자 자신의 위치까지
             position=cls.bolck_position(i_attack, j_attack, i_positon, j_positon)
-            for i, s in position:
-                str = cls.transform_num_to_str(i, s)
+            # if len(position)==1:
+            #     i,s=position[0]
+            #     str = cls.transform_num_to_str(i, s)
+            #     check_list=cls.isValid_check_list(str, board)
+            #     # 킹이 무조건 하나있어서 두개이상이여야함
+            #     if len(check_list)==1:
+            #         return False, "checkmate"
+            #     else:
+            #         return True, "block_checkmate"
+            for i, j in position:
+                print("공격말과 킹 사이 확인중",i,j)
+                str = cls.transform_num_to_str(i, j)
                 is_valid, check_position, check_i_positon, check_j_positon = cls.isValid_check(str, board, attack_color)
-                if is_valid:
-                    return True, "block_checkmate"
+                print("position",position)
+                print("체크 함수로 중간공간 올수있는 말이 있는지 확인",is_valid)
+                if abs(i_positon - i)<=1 and abs(j_positon - j)<=1:
+                    check_list=cls.isValid_check_list(str, board)
+                    # 킹이 무조건 하나있어서 두개이상이여야함
+                    # 킹이 이미 먹을 수 없는 존재임
+                    if len(check_list)<=1:
+                        return False, "checkmate"
+                    else:
+                        return True, "block_checkmate"
+
+                else:
+                    if is_valid:
+                        return True, "block_checkmate"
+
+                    
+
         # 폰은 움직이는거랑 공격하는거 둘 다 생각해야할 듯
         # 공격자가 폰일때는 먹어서 방어밖에 안된다
+        # 여기는 움직일 수 없어서 들어오는 경우임 중요!
         elif attack_horse == "P":
+            position=cls.bolck_position(i_attack, j_attack, i_positon, j_positon)
+            #여기서 킹이 먹을 수 있다면 여기서는 true가 되겠지만 턴넘어가고 움직일 수 없다면?
             str = cls.transform_num_to_str(i_attack, j_attack)
             is_valid, check_position, check_i_positon, check_j_positon = cls.isValid_check(str, board, attack_color)
+            # 막을 수 있는 말이 킹일 경우 
+            # 올 수 있는게 킹이면 안되는거지 + 바로앞에서 공격한걸 먹는것도
+            # 멀리서 공격했을때 킹한칸앞의 칸은 킹 제외해야함 아니면 다 막을 수 있다가 된다 공격자가 멀다
+            # 리스트에 넣자그냥 몇개 다 막을수 있는지 확인하고 킹이 들어가있다면 제외
+            # 바로 앞일경우이고 킹만 들어가있을때는 체크 함더 확인 먹고체크면 체크메이트
+            # 앞에서 공격했을때 피할 수 있다면 체메 안될거고 먹으려면 불가능뜨고 다른게 먹도록
+            # isValid_Q = check_position[1]==horse_color+"K"
             if is_valid:
                 return True, "block_checkmate"
         else:
@@ -1095,6 +1167,9 @@ class Chess:
     # 체크 걸고 체크이면 체크메이트 바로 확인
     @classmethod
     def isValid_checkmate(cls, i_positon, j_positon, board):
+        """
+        체크메이트 인지 확인한다 킹을 움직여서 피할 수 있는지 확인
+        """
         # 킹 움직임 8개의 경우의 수
         # i_positon, j_positon 킹의 위치
         vaild_move=cls.isValid_king_move(i_positon, j_positon)
@@ -1143,6 +1218,10 @@ class Chess:
     # 두가지 기능 체크확인, 체크메이트 막을 수 있는지 확인할때 씀(이걸쓸지 그냥 체크쓸지? 모르겠네)
     @classmethod
     def isValid_op_check(cls, positon, board, attack_color = None):
+        """
+        내가 상대방 킹 체크했을때 체크메이트 확인
+        내가 말  움직이면 내 킹 확인 상대킹 확인 체크라면 체크메이트 확인
+        """
         #00이 면 패스 같은팀 뭐 11이면 왼 오 아래 위 따로 확인
         print(positon) #a5wQ   
         print(positon[:2]) #a5wQ
@@ -1408,3 +1487,246 @@ class Chess:
             #             print("bishop -- move false")
             #             break
 
+    @classmethod
+    def isValid_check_list(cls, positon, board, attack_color = None):
+        """
+        내가 움직였을때 킹 위치 기준 체크 확인
+        """
+        #00이 면 패스 같은팀 뭐 11이면 왼 오 아래 위 따로 확인
+        print(positon) #a5wQ   
+        print(positon[:2]) #a5wQ   
+        isValid_from, i_positon, j_positon=cls.transform_str_to_num(positon[:2])
+        horse_color= board[i_positon][j_positon][0]
+        print(horse_color) #w
+
+        # 체크메이트를 막을때 00 일경우에 색이없는데 공격자 색을 보내줌
+        if attack_color is None:
+            if horse_color == "w":
+                op_color = "b"
+            elif horse_color == "b":
+                op_color = "w"
+        else:
+            horse_color = attack_color
+        print(op_color)#b
+        print(i_positon)
+        print(j_positon)
+        #TODO 직선 체크 R,Q
+        check_list=[]
+        left = int(8-(8-j_positon))
+        right = int(8-j_positon)
+        up = int(8-(8-i_positon))
+        down = int(8-i_positon)
+        #왼쪽
+        # if i_positon + 2 < len(board) and j_positon + 1 < len(board[0]):
+        if j_positon - 1 >= 0:
+            for i in range(1,left+1):
+                print(left)
+                print("왼쪽 확인중")
+                print("board[i_positon][j_positon]",board[i_positon][j_positon])
+                print("board[i_positon][j_positon][0]",board[i_positon][j_positon][0])
+                if board[i_positon][j_positon-i][0]==horse_color:
+                    print("같은편이라서 괜찮")
+                    break
+                    # return True, "같은편이라서 괜찮"
+                elif board[i_positon][j_positon-i]!=EMPTY:
+                    if board[i_positon][j_positon-i]==op_color+"R" or board[i_positon][j_positon-1]==op_color+"Q":
+                        print("board[i_positon][j_positon-i]==op_color+R",board[i_positon][j_positon-i]==op_color+"Q")
+                        check_list.append(board[i_positon][j_positon-i])
+                        print(check_list)
+                        break
+                else:
+                    pass
+        if j_positon + 1 < 8:
+            for i in range(1,right+1):
+                print(right)
+                print("오른쪽 확인중")
+                print("board[i_positon][j_positon][0]",board[i_positon][j_positon][0])
+                if board[i_positon][j_positon+i][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon][j_positon+i]!=EMPTY:
+                    if board[i_positon][j_positon+i]==op_color+"R" or board[i_positon][j_positon+1]==op_color+"Q":
+                        check_list.append(board[i_positon][j_positon+i])
+                        print(check_list)
+                        break
+                else:
+                    pass
+        if i_positon - 1 >= 0:
+            for i in range(1,up+1):
+                print("위 확인중")
+                if board[i_positon-i][j_positon][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon-i][j_positon]!=EMPTY:
+                    if board[i_positon-i][j_positon]==op_color+"R" or board[i_positon-i][j_positon]==op_color+"Q":
+                        check_list.append(board[i_positon-i][j_positon])
+                        print(check_list)
+                        break
+                else:
+                    pass
+
+        print("아래 시작전")
+        if i_positon + 1 < 8:
+            for i in range(1,down+1):
+                print("아래 확인중")
+                if board[i_positon+i][j_positon][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon+i][j_positon]!=EMPTY:
+                    if board[i_positon+i][j_positon]==op_color+"R" or board[i_positon+i][j_positon]==op_color+"Q":
+                        check_list.append(board[i_positon+i][j_positon])
+                        print(check_list)
+                        break
+                else:
+                    pass
+
+        #TODO 대각선 체크 Q,B
+        #오른쪽 아래
+        #왼쪽 아래
+        #왼쪽 위
+        #오른쪽 위
+        #00 30
+        #30이면 33에서 계산하는것과 같은 오른쪽아래의 개수임
+        #옮기고 내 킹 계산 내가 킹을 옮겼다면 옮긴 킹위치데이터 줘야함
+        #내가 다른말 움직여도 내꺼하고 상대방체크임 내가 뭘 피해서 공격하는거 생각하면 그사람 턴에 다 계산
+        #00 11 22 33 44 숫자 큰걸로 같게만든 위치와 확인하는 수 같다
+        # large_min=max(i_positon,j_positon)
+        # diagonal_position=8-large_positon
+        # print("large_positon",large_positon)
+        # print("diagonal_position",diagonal_position)
+        print("++대각 확인전")
+
+        #오른쪽 아래 대각선
+        if j_positon + 1 <= 8:
+            for i in range(1, min(7 - i_positon, 7 - j_positon)):
+                print("대각선")
+                if board[i_positon+i][j_positon+i][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon+i][j_positon+i]!=EMPTY:
+                    if board[i_positon+i][j_positon+i]==op_color+"B" or board[i_positon+i][j_positon+i]==op_color+"Q":
+                        print("대각 체크있음")
+                        check_list.append(board[i_positon+i][j_positon+i])
+                        print(check_list)
+                        break
+                else:
+                    pass
+
+        #왼쪽 아래 대각선
+        if i_positon + 1 <= 8:
+            print("+-대각 확인전")
+            for i in range(1, min(7 - i_positon, j_positon) + 1):
+                print("대각선 확인중")
+                if board[i_positon+i][j_positon-i][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon+i][j_positon-i]!=EMPTY:
+                    if board[i_positon+i][j_positon-i]==op_color+"B" or board[i_positon+i][j_positon-i]==op_color+"Q":
+                        print("대각 체크있음")
+                        check_list.append(board[i_positon+i][j_positon-i])
+                        print(check_list)
+                        break
+                else:
+                    pass
+
+        #왼쪽 위 대각선
+        if i_positon + 1 <= 8:
+            print("--대각 확인전")
+            for i in range(1, min(i_positon, j_positon) + 1):
+                if board[i_positon-i][j_positon-i][0]==horse_color:
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon-i][j_positon-i]!=EMPTY:
+                    if board[i_positon-i][j_positon-i]==op_color+"B" or board[i_positon-i][j_positon-i]==op_color+"Q":
+                        print("대각 체크있음")
+                        check_list.append(board[i_positon-i][j_positon-i])
+                        print(check_list)
+                        break
+                else:
+                    pass
+
+        #오른쪽 위 대각선
+        if j_positon + 1 <= 8:
+            print("-+대각 확인전")
+            for i in range(1, min(i_positon, 7 - j_positon) + 1):
+                print(i)
+                if board[i_positon-i][j_positon+i][0]==horse_color:
+                    print("break4")
+                    # return True, "같은편이라서 괜찮"
+                    break
+                elif board[i_positon-i][j_positon+i]!=EMPTY:
+                    print("대각선 확인중 00이 아님!")
+                    print(board[i_positon-i][j_positon+i])
+                    print(op_color+"B")
+                    print(board[i_positon-i][j_positon+i]==op_color+"Q")
+                    if board[i_positon-i][j_positon+i]==op_color+"B" or board[i_positon-i][j_positon+i]==op_color+"Q":
+                        print("대각 체크있음")
+                        check_list.append(board[i_positon-i][j_positon+i])
+                        print(check_list)
+                        break
+                    else:
+                        print("왜 여기로?")
+                else:
+                    print("else")
+                    pass
+
+        #TODO 나이트8개
+        if i_positon + 2 < len(board) and j_positon + 1 < len(board[0]):
+            if board[i_positon+2][j_positon+1]==op_color+"N":
+                check_list.append(board[i_positon+2][j_positon+1])
+                print(check_list)
+
+        if i_positon + 2 < len(board) and j_positon - 1 < len(board[0]):
+            if board[i_positon+2][j_positon-1]==op_color+"N":
+                check_list.append(board[i_positon+2][j_positon-1])
+                print(check_list)
+
+        if i_positon - 2 < len(board) and j_positon + 1 < len(board[0]):
+            if board[i_positon-2][j_positon+1]==op_color+"N":
+                check_list.append(board[i_positon-2][j_positon+1])
+                print(check_list)
+
+        if i_positon - 2 < len(board) and j_positon - 1 < len(board[0]):
+            if board[i_positon-2][j_positon-1]==op_color+"N":
+                check_list.append(board[i_positon-2][j_positon-1])
+                print(check_list)
+
+        if i_positon + 1 < len(board) and j_positon + 2 < len(board[0]):
+            if board[i_positon+1][j_positon+2]==op_color+"N":
+                check_list.append(board[i_positon+1][j_positon+2])
+                print(check_list)
+
+        if i_positon - 1 < len(board) and j_positon + 2 < len(board[0]):
+            if board[i_positon-1][j_positon+2]==op_color+"N":
+                check_list.append(board[i_positon-1][j_positon+2])
+                print(check_list)
+
+        if i_positon + 1 < len(board) and j_positon - 2 < len(board[0]):
+            if board[i_positon+1][j_positon-2]==op_color+"N":
+                check_list.append(board[i_positon+1][j_positon-2])
+                print(check_list)
+
+        if i_positon - 1 < len(board) and j_positon - 2 < len(board[0]):
+            if board[i_positon-1][j_positon-2]==op_color+"N":
+                check_list.append(board[i_positon-1][j_positon-2])
+                print(check_list)
+
+
+        #TODO 상대폰
+        if horse_color=="w":
+            if board[i_positon-1][j_positon-1]==op_color+"P":
+                check_list.append(board[i_positon-1][j_positon-1])
+                print(check_list)
+            if board[i_positon-1][j_positon+1]==op_color+"P":
+                check_list.append(board[i_positon-1][j_positon+1])
+                print(check_list)
+        else:
+            if board[i_positon+1][j_positon-1]==op_color+"P":
+                check_list.append(board[i_positon+1][j_positon-1])
+                print(check_list)
+            if board[i_positon+1][j_positon+1]==op_color+"P":
+                check_list.append(board[i_positon+1][j_positon+1])
+                print(check_list)
+        if check_list:
+            print("체크리스트 프린트",check_list)
+            return check_list
