@@ -62,8 +62,8 @@ class ChessView(APIView):
                 "player_2":"",
                 "board_state":json_string,
                 "turn": "player_1",
-                "player_1_ready":"",
-                "player_2_ready":"",
+                "player_1_ready":0,
+                "player_2_ready":0,
                 "result":"",
                 "chesslog":"",
                 "player_1_king":"",
@@ -91,88 +91,89 @@ class ChessView(APIView):
         """
         chess ready
         """
-        #플레이어 2 없다면 아이디 나 저장하고 레디로 바꾸고 둘다 레디냐?
-        #
-        user_id.
-        redis_data={
-            "player_1_ready":"",
-            "player_2_ready":"",
-        }
-        redis_client.hmset(game_id,)
         game_id=int(request.data.get('game_id'))
         user_id=int(request.data.get('user_id'))
-        game=get_object_or_404(ChessLog, id=game_id)
-        chess_instance=Chess()
-        chess_instance.create_board()
-        chess_instance.set_game()
-        board_state=chess_instance.board
+        #플레이어 2 없다면 아이디 나 저장하고 레디로 바꾸고 둘다 레디냐?
+        #방 아이디 / 유저 아이디 / 턴 / 보드/  플레이어 레디 / 결과 / 움직임 기록/ 왕 위치
 
-        if game.player_1.id==user_id and game.player_1_ready==False:
-            game.player_1_ready=True
-            game.save()
-            print(game.player_1_ready)
-            print("1")
+        # room_id로 들고온다 레디스에서 정보 가져온다
+        chess_board=redis_client.hget(game_id,"board_state")
+        player_1=redis_client.hget(game_id,"player_1")
+        player_2=redis_client.hget(game_id,"player_2")
+        player_1_ready=redis_client.hget(game_id,"player_1_ready")
+        player_2_ready=redis_client.hget(game_id,"player_2_ready")
+        
+
+        # 바이트로 들어온 데이터 str로 decode 후 json.loads 으로 리스트로 변환
+        decoded_board_state = json.loads(chess_board.decode('utf-8')) if chess_board else None
+        decoded_player_1 = json.loads(player_1.decode('utf-8')) if player_1 else None
+        decoded_player_2 = json.loads(player_2.decode('utf-8')) if player_2 else None
+        decoded_player_1_ready = json.loads(player_1_ready.decode('utf-8')) if player_1_ready else None
+        decoded_player_2_ready = json.loads(player_2_ready.decode('utf-8')) if player_2_ready else None
+
+        print("chess_board",decoded_board_state)
+        print("chess_board",type(decoded_board_state))
+        print("player_1 레디",player_1)
+        print("player_1 레디",decoded_player_1)
+        print("player_1 레디",decoded_player_1==user_id)
+
+        # 플레이어 1이야? 레디 확인
+        if decoded_player_1==user_id and decoded_player_1_ready==0:
+            redis_new_data={
+                "player_1_ready":1,
+            }
+            redis_client.hmset(game_id, redis_new_data)
             data={
             "player":"player_1",
-            "board_state":board_state,
+            "board_state":decoded_board_state,
             "ready_state":"game_start"
             }
-            if game.player_1_ready and game.player_2_ready:
+            # 2도 준비했다면 게임시작
+            if decoded_player_2_ready:
                 return Response(data,status=status.HTTP_200_OK)
             return Response({"ready_state":"player_1_True"},status=status.HTTP_200_OK)
 
-        elif game.player_1.id==user_id and game.player_1_ready==True:
-            game.player_1_ready=False
-            game.save()
-            print(game.player_1_ready)
+        # 플레이어 1이야? 레디 확인
+        elif decoded_player_1==user_id and decoded_player_1_ready==1:
+            redis_new_data={
+                "player_1_ready":0,
+            }
             print("2")
-            if game.player_1_ready and game.player_2_ready:
-                return Response({"player":"player_1","board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
+            redis_client.hmset(game_id, redis_new_data)
             return Response({"ready_state":"player_1_False"},status=status.HTTP_200_OK)
 
-        elif game.player_1.id!=user_id and game.player_2==None:
-            user=get_object_or_404(User,id=user_id)
-            game.player_2=user
-            game.player_2_ready=True
-            game.save()
+        # 유저 1이 아니고 2 레디가 아니라면
+        # 아이디를 db에 바로 넣을지 아닐지 고민
+        # 처음 들어왔을때 레디 누름
+        elif decoded_player_1!=user_id and decoded_player_2_ready==0:
             print("3")
-            if game.player_1_ready and game.player_2_ready:
-                return Response({"player":"player_2","board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
+            redis_new_data={
+                "player_2_ready":1,
+                "player_2":user_id,
+            }
+            redis_client.hmset(game_id, redis_new_data)
+            if decoded_player_1_ready:
+                return Response({"player":"player_2","board_state":decoded_board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
             return Response({"ready_state":"player_2_True"},status=status.HTTP_200_OK)
-            
-        elif game.player_1.id!=user_id and game.player_2.id==user_id and game.player_2_ready==True:
-            game.player_2_ready=False       
-            game.save()
+        
+        # 필요없다
+        elif decoded_player_2==user_id and decoded_player_2_ready==1:
             print("4")
+            redis_new_data={
+                "player_2_ready":0,
+            }
             data={
             "player":"player_2",
-            "board_state":board_state,
+            "board_state":decoded_board_state,
             "ready_state":"game_start"
             }
-            if game.player_1_ready and game.player_2_ready:
-                return Response({
-                    "player":"player_2",
-                    "board_state":board_state,
-                    "ready_state":"game_start"},
-                    status=status.HTTP_200_OK)
+            redis_client.hmset(game_id, redis_new_data)
             return Response({"ready_state":"player_2_False"},status=status.HTTP_200_OK)
 
-        elif game.player_1.id!=user_id and game.player_2.id==user_id and game.player_2_ready==False:
-            game.player_2_ready=True       
-            game.save()
-            print("5")
-            data={
-            "player":"player_2",
-            "board_state":board_state,
-            "ready_state":"game_start"
-            }
-            if game.player_1_ready and game.player_2_ready:
-                return Response({"player":"player_2","board_state":board_state,"ready_state":"game_start"},status=status.HTTP_200_OK)
-            return Response({"ready_state":"player_2_True"},status=status.HTTP_200_OK)
-
+        # 잘못된 접근
         else:
             print("=====")
-            pass
+            return Response({"ready_state":"잘못된 접근"},status=status.HTTP_400_OK)
 
     # delete game
     def delete(self, request):
