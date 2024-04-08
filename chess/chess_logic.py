@@ -116,8 +116,8 @@ class Chess:
         self.set_cell('a1',WHITE+ROOK)
         self.set_cell('b1',WHITE+KNIGHT)
         self.set_cell('c1',WHITE+BISHOP)
-        self.set_cell('d1',WHITE+KING)
-        self.set_cell('e1',WHITE+QUEEN)
+        self.set_cell('d1',WHITE+QUEEN)
+        self.set_cell('e1',WHITE+KING)
         self.set_cell('f1',WHITE+BISHOP)
         self.set_cell('g1',WHITE+KNIGHT)
         self.set_cell('h1',WHITE+ROOK)
@@ -130,8 +130,8 @@ class Chess:
         self.set_cell('a8',BLACK+ROOK)
         self.set_cell('b8',BLACK+KNIGHT)
         self.set_cell('c8',BLACK+BISHOP)
-        self.set_cell('d8',BLACK+KING)
-        self.set_cell('e8',BLACK+QUEEN)
+        self.set_cell('d8',BLACK+QUEEN)
+        self.set_cell('e8',BLACK+KING)
         self.set_cell('f8',BLACK+BISHOP)
         self.set_cell('g8',BLACK+KNIGHT)
         self.set_cell('h8',BLACK+ROOK)
@@ -150,10 +150,9 @@ class Chess:
         #00이 면 패스 같은팀 뭐 11이면 왼 오 아래 위 따로 확인
         print(positon) #a5wQ   
         print(positon[:2]) #a5wQ   
-        isValid_from, i_positon, j_positon=cls.transform_str_to_num(positon[:2])
+        isValid_from, i_positon, j_positon=cls.transform_str_to_num(positon)
         horse_color= board[i_positon][j_positon][0]
         print(horse_color) #w
-
         # 체크메이트를 막을때 00 일경우에 색이없는데 공격자 색을 보내줌
         if attack_color is None:
             if horse_color == "w":
@@ -166,6 +165,7 @@ class Chess:
         print(i_positon)
         print(j_positon)
         #TODO 직선 체크 R,Q
+        check=False
         left = int(8-(8-j_positon))
         right = int(8-j_positon)
         up = int(8-(8-i_positon))
@@ -174,9 +174,9 @@ class Chess:
         # if i_positon + 2 < len(board) and j_positon + 1 < len(board[0]):
         if j_positon - 1 >= 0:
             for i in range(1,left+1):
-                print(left)
+                # print(left)
                 print("왼쪽 확인중")
-                print("board[i_positon][j_positon]",board[i_positon][j_positon])
+                # print("board[i_positon][j_positon]",board[i_positon][j_positon])
                 print("board[i_positon][j_positon][0]",board[i_positon][j_positon][0])
                 if board[i_positon][j_positon-i][0]==horse_color:
                     print("같은편이라서 괜찮")
@@ -185,6 +185,7 @@ class Chess:
                 elif board[i_positon][j_positon-i]!=EMPTY:
                     if board[i_positon][j_positon-i]==op_color+"R" or board[i_positon][j_positon-1]==op_color+"Q":
                         print("board[i_positon][j_positon-i]==op_color+R",board[i_positon][j_positon-i]==op_color+"Q")
+                        check=True
                         return True, board[i_positon][j_positon-i], i_positon, j_positon-i, "위치에서 체크입니다"
                 else:
                     pass
@@ -195,9 +196,11 @@ class Chess:
                 print("board[i_positon][j_positon][0]",board[i_positon][j_positon][0])
                 if board[i_positon][j_positon+i][0]==horse_color:
                     # return True, "같은편이라서 괜찮"
+                    print("같은편이라서 괜찮")
                     break
                 elif board[i_positon][j_positon+i]!=EMPTY:
                     if board[i_positon][j_positon+i]==op_color+"R" or board[i_positon][j_positon+1]==op_color+"Q":
+                        check=True
                         return True, board[i_positon][j_positon+i], i_positon, j_positon+i, "위치에서 체크입니다"
 
                 else:
@@ -206,10 +209,11 @@ class Chess:
             for i in range(1,up+1):
                 print("위 확인중")
                 if board[i_positon-i][j_positon][0]==horse_color:
-                    # return True, "같은편이라서 괜찮"
+                    print("같은편이라서 괜찮")
                     break
                 elif board[i_positon-i][j_positon]!=EMPTY:
                     if board[i_positon-i][j_positon]==op_color+"R" or board[i_positon-i][j_positon]==op_color+"Q":
+                        check=True
                         return True, board[i_positon-i][j_positon], i_positon-i, j_positon, "위치에서 체크입니다"
                 else:
                     pass
@@ -219,10 +223,11 @@ class Chess:
             for i in range(1,down+1):
                 print("아래 확인중")
                 if board[i_positon+i][j_positon][0]==horse_color:
-                    # return True, "같은편이라서 괜찮"
+                    print("같은편이라서 괜찮")
                     break
                 elif board[i_positon+i][j_positon]!=EMPTY:
                     if board[i_positon+i][j_positon]==op_color+"R" or board[i_positon+i][j_positon]==op_color+"Q":
+                        check=True
                         return True, board[i_positon+i][j_positon], i_positon+i, j_positon, "위치에서 체크입니다"
                 else:
                     pass
@@ -246,13 +251,14 @@ class Chess:
         #오른쪽 아래 대각선
         if j_positon + 1 <= 8:
             for i in range(1, min(7 - i_positon, 7 - j_positon)):
-                print("대각선")
+                print("++대각 확인전")
                 if board[i_positon+i][j_positon+i][0]==horse_color:
                     # return True, "같은편이라서 괜찮"
                     break
                 elif board[i_positon+i][j_positon+i]!=EMPTY:
                     if board[i_positon+i][j_positon+i]==op_color+"B" or board[i_positon+i][j_positon+i]==op_color+"Q":
                         print("대각 체크있음")
+                        check=True
                         return True, board[i_positon+i][j_positon+i], i_positon+i, j_positon+i, "위치에서 체크입니다"
                 else:
                     pass
@@ -261,13 +267,13 @@ class Chess:
         if i_positon + 1 <= 8:
             print("+-대각 확인전")
             for i in range(1, min(7 - i_positon, j_positon) + 1):
-                print("대각선 확인중")
                 if board[i_positon+i][j_positon-i][0]==horse_color:
                     # return True, "같은편이라서 괜찮"
                     break
                 elif board[i_positon+i][j_positon-i]!=EMPTY:
                     if board[i_positon+i][j_positon-i]==op_color+"B" or board[i_positon+i][j_positon-i]==op_color+"Q":
                         print("대각 체크있음")
+                        check=True
                         return True, board[i_positon+i][j_positon-i], i_positon+i, j_positon-i, "위치에서 체크입니다"
                 else:
                     pass
@@ -282,6 +288,7 @@ class Chess:
                 elif board[i_positon-i][j_positon-i]!=EMPTY:
                     if board[i_positon-i][j_positon-i]==op_color+"B" or board[i_positon-i][j_positon-i]==op_color+"Q":
                         print("대각 체크있음")
+                        check=True
                         return True, board[i_positon-i][j_positon-i], i_positon-i, j_positon-i, "위치에서 체크입니다"
                 else:
                     pass
@@ -302,6 +309,7 @@ class Chess:
                     print(board[i_positon-i][j_positon+i]==op_color+"Q")
                     if board[i_positon-i][j_positon+i]==op_color+"B" or board[i_positon-i][j_positon+i]==op_color+"Q":
                         print("대각 체크있음")
+                        check=True
                         return True, board[i_positon-i][j_positon+i], i_positon-i, j_positon+i, "위치에서 체크입니다"
                     else:
                         print("왜 여기로?")
@@ -310,59 +318,78 @@ class Chess:
                     pass
 
         #TODO 나이트8개
-        if i_positon + 2 < len(board) and j_positon + 1 < len(board[0]):
+        if i_positon + 2 < 8 and j_positon + 1 < 8:
             if board[i_positon+2][j_positon+1]==op_color+"N":
+                check=True
                 return True, board[i_positon+2][j_positon+1], i_positon+2, j_positon+1, "위치에서 체크입니다"
             else:
                 print("나이트 없어요1")
-        if i_positon + 2 < len(board) and j_positon - 1 < len(board[0]):
+        if i_positon + 2 < 8 and j_positon - 1 > 0:
             if board[i_positon+2][j_positon-1]==op_color+"N":
+                check=True
                 return True, board[i_positon+2][j_positon-1], i_positon+2, j_positon-1, "위치에서 체크입니다"
             else:
-                print("나이트 없어요12")
-        if i_positon - 2 < len(board) and j_positon + 1 < len(board[0]):
+                print("나이트 없어요2")
+        if i_positon - 2 > 8 and j_positon + 1 < 8:
             if board[i_positon-2][j_positon+1]==op_color+"N":
+                check=True
                 return True, board[i_positon-2][j_positon+1], i_positon-2, j_positon+1, "위치에서 체크입니다"
             else:
-                print("나이트 없어요13")
-        if i_positon - 2 < len(board) and j_positon - 1 < len(board[0]):
+                print("나이트 없어요3")
+        if i_positon - 2 > 0 and j_positon - 1 > 0:
             if board[i_positon-2][j_positon-1]==op_color+"N":
+                check=True
                 return True, board[i_positon-2][j_positon-1], i_positon-2, j_positon-1, "위치에서 체크입니다"
             else:
-                print("나이트 없어요14")
-        if i_positon + 1 < len(board) and j_positon + 2 < len(board[0]):
+                print("나이트 없어요4")
+        if i_positon + 1 < 8 and j_positon + 2 < 8:
             if board[i_positon+1][j_positon+2]==op_color+"N":
+                check=True
                 return True, board[i_positon+1][j_positon+2], i_positon+1, j_positon+2, "위치에서 체크입니다"
             else:
-                print("나이트 없어요15")
-        if i_positon - 1 < len(board) and j_positon + 2 < len(board[0]):
+                print("나이트 없어요5")
+        if i_positon - 1 > 0 and j_positon + 2 < 8:
             if board[i_positon-1][j_positon+2]==op_color+"N":
+                print(i_positon)
+                print(j_positon)
+                print(op_color+"N")
+                print(board)
+                check=True
                 return True, board[i_positon-1][j_positon+2], i_positon-1, j_positon+2, "위치에서 체크입니다"
             else:
-                print("나이트 없어요16")
-        if i_positon + 1 < len(board) and j_positon - 2 < len(board[0]):
+                print("나이트 없어요6")
+        if i_positon + 1 < 8 and j_positon - 2 > 0:
             if board[i_positon+1][j_positon-2]==op_color+"N":
+                check=True
                 return True, board[i_positon+1][j_positon-2], i_positon+1, j_positon-2, "위치에서 체크입니다"
             else:
-                print("나이트 없어요17")
-        if i_positon - 1 < len(board) and j_positon - 2 < len(board[0]):
+                print("나이트 없어요7")
+        if i_positon - 1 > 8 and j_positon - 2 > 8:
             if board[i_positon-1][j_positon-2]==op_color+"N":
+                check=True
                 return True, board[i_positon-1][j_positon-2], i_positon-1, j_positon-2, "위치에서 체크입니다"
             else:
-                print("나이트 없어요18")
+                print("나이트 없어요8")
 
         #TODO 상대폰
         if horse_color=="w":
             if board[i_positon-1][j_positon-1]==op_color+"P":
+                check=True
                 return True, board[i_positon-1][j_positon-1], i_positon-1, j_positon-1, "위치에서 체크입니다"
             if board[i_positon-1][j_positon+1]==op_color+"P":
+                check=True
                 return True, board[i_positon-1][j_positon+1], i_positon-1, j_positon+1, "위치에서 체크입니다"
+            print("폰 없어요")
         else:
             if board[i_positon+1][j_positon-1]==op_color+"P":
+                check=True
                 return True, board[i_positon+1][j_positon-1], i_positon+1, j_positon-1, "위치에서 체크입니다"
             if board[i_positon+1][j_positon+1]==op_color+"P":
+                check=True
                 return True, board[i_positon+1][j_positon+1], i_positon+1, j_positon+1, "위치에서 체크입니다"
-
+            print("폰 없어요")
+        if check==False:
+            return False, "체크가 아닙니다"
     #TODO 지금자리와 옮기는자리 같으면 안된다 #완
     #TODO 옮기려는 부분이 체스판 밖이 아닐까 #완
     #TODO i는 변하지만 j는 변하지 않는다 #완
@@ -394,7 +421,7 @@ class Chess:
         print("move_pawn", i_from, j_from, i_to, j_to) #여기서 i j 는 실제 0,0을 의미
         if isValid:
             dif=i_to-i_from
-            print("valid")
+            print("폰 움직이는거 valid")
             if from_positon[-2]==BLACK:
                 # print("black")
                 if dif >= 1 and dif <= 2 and isVaild_first_move_black:  #if=1 or 2 로 해도 될듯?
@@ -1169,6 +1196,7 @@ class Chess:
     def isValid_checkmate(cls, i_positon, j_positon, board):
         """
         체크메이트 인지 확인한다 킹을 움직여서 피할 수 있는지 확인
+        못움직인다면 막을 수 있는지도 확인
         """
         # 킹 움직임 8개의 경우의 수
         # i_positon, j_positon 킹의 위치
