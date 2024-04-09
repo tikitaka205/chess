@@ -80,16 +80,6 @@ class ChatConsumer(WebsocketConsumer):
             말을 옮기는 메세지
             캐시를 사용하기위해 아이디를 가져옴
             """
-            #룸번호 유저
-            #룸번호로 방 플레이어, 턴 보고 응답
-            #체스  
-            #           'a7bP','a5'
-            #           'c8bB','a6'
-            #           'b1wN','c3'
-            #           'a8bR','a6'
-            #           'e2wP','e4'
-            #           'e1wQ','e3'          퀸
-            #           'd1wK','e2'          킹
         
             # data parsing
             horse = text_data_json["horse"]
@@ -115,6 +105,11 @@ class ChatConsumer(WebsocketConsumer):
                 from_positon=horse_move[0]
                 to_position=horse_move[1]
                 horse_type=horse_move[0][3]
+                
+                if redis_turn==redis_player_1:
+                    now_turn="white"
+                else:
+                    now_turn="black"
 
                 # 턴바꾸기
                 if user_id==redis_player_1:
@@ -131,12 +126,8 @@ class ChatConsumer(WebsocketConsumer):
                     attack_color="b"
 
                 print("my_king위치:",my_king)
+
                 # 유저의 턴이고 폰일때
-                # print("redis_turn",redis_turn, user_id)
-                # print("redis_turn",type(redis_turn))
-                # print("redis_turn",type(user_id))
-                # print("redis_turn",redis_turn==user_id)
-                # print("isValid_turn",isValid_turn)
                 if horse_type=="P" and isValid_turn:
                     # print("======",from_positon[:2])
                     # print("==========",i_from, j_from)
@@ -168,7 +159,7 @@ class ChatConsumer(WebsocketConsumer):
                     isValid_check=Chess.isValid_check(my_king, new_board_state)
                     print("체크 확인",isValid_check)
                     if result[0]==True:
-                    # 내 킹 체크가 아니다
+                        # 내 킹 체크가 아니다
                         if isValid_check[0]==False:
                             # 우선 움직일 수는 있으니 저장
                             print("isValid_check",isValid_check)
@@ -184,8 +175,6 @@ class ChatConsumer(WebsocketConsumer):
                             # 아니면 옮기고 끝
                             if isValid_enemy_check[0]==False:
                                 print("isValid_enemy_check",isValid_enemy_check)
-                                # new_board_state=redis_board_state
-                                # alarm=result[2]
                                 pass
                             
                             # 상대킹 체크라면
@@ -195,8 +184,7 @@ class ChatConsumer(WebsocketConsumer):
                                 # 체크메이트 확인 체크메이트 아니라면 피하면 끝
                                 if isValid_enemy_checkmate[0]==False:
                                     print("isValid_enemy_checkmate",isValid_enemy_checkmate)
-                                    # new_board_state=redis_board_state
-                                    alarm=result[2]
+                                    alarm=isValid_enemy_checkmate[4]
                                 # 체크 메이트라면
                                 else:
                                     print("checkmate")
@@ -210,24 +198,69 @@ class ChatConsumer(WebsocketConsumer):
                         elif isValid_check[0]==True:
                             print("isValid_check",isValid_check)
                             new_board_state=board_state
-                            alarm=result[2]
+                            alarm=isValid_check[4]
                         else:
                             pass
                     else:
                         pass
-                    #     redis_new_data={
-                    #         "board_state":json_new_board_state,
-                    #         "turn":change_turn
-                    #     }
-                    #     redis_client.hmset(room_id, redis_new_data)
-                    #     print(alarm)
-                    #     print(result)
-                    # # print(new_board_state)
+
 
                 elif horse_type=="B" and isValid_turn:
                     result=Chess.move_bishop(from_positon,to_position,board_state)
                     new_board_state=result[1]
                     alarm=result[2]
+
+                    json_new_board_state=json.dumps(new_board_state)
+                    print("체크 확인",isValid_check)
+                    # 일단 말 움직임 괜찮은지 확인
+                    if result[0]==True:
+                        isValid_check=Chess.isValid_check(my_king, new_board_state)
+                        # 내 킹 체크가 아니다
+                        if isValid_check[0]==False:
+                            # 우선 움직일 수는 있으니 저장
+                            print("isValid_check",isValid_check)
+                            redis_new_data={
+                                "board_state":json_new_board_state,
+                                "turn":change_turn
+                            }
+                            redis_client.hmset(room_id, redis_new_data)
+
+                            # 상대방 체크냐 확인
+                            king_checkmate, enemy_king_i, enemy_king_j=Chess.transform_str_to_num(enemy_king)
+                            isValid_enemy_check=Chess.isValid_check(enemy_king, new_board_state)
+                            # 아니면 옮기고 끝
+                            if isValid_enemy_check[0]==False:
+                                print("isValid_enemy_check",isValid_enemy_check)
+                                alarm=result[2]
+                                pass
+                            
+                            # 상대킹 체크라면
+                            elif isValid_enemy_check[0]==True:
+                                print("isValid_enemy_check",isValid_enemy_check)
+                                isValid_enemy_checkmate=Chess.isValid_checkmate(enemy_king_i, enemy_king_j,new_board_state)
+                                # 체크메이트 확인 체크메이트 아니라면 피하면 끝
+                                if isValid_enemy_checkmate[0]==False:
+                                    print("isValid_enemy_checkmate",isValid_enemy_checkmate)
+                                    alarm=isValid_enemy_checkmate[4]
+                                # 체크 메이트라면
+                                else:
+                                    print("checkmate")
+                                    pass
+                                    # game=ChessLog.objects.get(id=room_id)
+                                    # game.save()
+
+                                    # 체크 메이트 선언
+
+                        # 내 킹 체크되면 못옮긴다 원래 체스보드 반납
+                        elif isValid_check[0]==True:
+                            print("isValid_check",isValid_check)
+                            new_board_state=board_state
+                            alarm="옮길 수 없는 자리입니다."+isValid_check[4]
+                        else:
+                            pass
+                    else:
+                        pass
+
                     print("alarm",alarm)
                     print("result",result)
                     print("new_board_state",new_board_state)
@@ -266,7 +299,64 @@ class ChatConsumer(WebsocketConsumer):
                                 if isValid_enemy_checkmate[0]==False:
                                     print("isValid_enemy_checkmate",isValid_enemy_checkmate)
                                     # new_board_state=redis_board_state
-                                    alarm=result[2]
+                                    alarm=isValid_enemy_checkmate[4]
+
+                                # 체크 메이트라면
+                                else:
+                                    print("checkmate")
+                                    pass
+                                    # game=ChessLog.objects.get(id=room_id)
+                                    # game.save()
+
+                                    # 체크 메이트 선언
+
+                        # 내 킹 체크되면 못옮긴다
+                        elif isValid_check[0]==True:
+                            print("isValid_check",isValid_check)
+                            new_board_state=board_state
+                            alarm=isValid_check[4]
+                        else:
+                            pass
+                        print(alarm)
+                        print(result)
+                        print("new_board_state",new_board_state)
+
+                elif horse_type=="R" and isValid_turn:
+                    result=Chess.move_rook(from_positon,to_position,board_state)
+                    new_board_state=result[1]
+                    alarm=result[2]
+
+                    # 움직인 후 내 킹 체크확인
+                    json_new_board_state=json.dumps(new_board_state)
+                    isValid_check=Chess.isValid_check(my_king, new_board_state)
+                    print("체크 확인",isValid_check)
+                    if result[0]==True:
+                    # 내 킹 체크가 아니다
+                        if isValid_check[0]==False:
+                            # 우선 움직일 수는 있으니 저장
+                            print("isValid_check",isValid_check)
+                            redis_new_data={
+                                "board_state":json_new_board_state,
+                                "turn":change_turn
+                            }
+                            redis_client.hmset(room_id, redis_new_data)
+
+                            # 상대방 체크냐 확인
+                            king_checkmate, enemy_king_i, enemy_king_j=Chess.transform_str_to_num(enemy_king)
+                            isValid_enemy_check=Chess.isValid_check(enemy_king, new_board_state)
+                            # 아니면 옮기고 끝
+                            if isValid_enemy_check[0]==False:
+                                print("isValid_enemy_check",isValid_enemy_check)
+                                pass
+                            
+                            # 상대킹 체크라면
+                            elif isValid_enemy_check[0]==True:
+                                print("isValid_enemy_check",isValid_enemy_check)
+                                isValid_enemy_checkmate=Chess.isValid_checkmate(enemy_king_i, enemy_king_j,new_board_state)
+                                # 체크메이트 확인 체크메이트 아니라면 피하면 끝
+                                if isValid_enemy_checkmate[0]==False:
+                                    print("isValid_enemy_checkmate",isValid_enemy_checkmate)
+                                    alarm=isValid_enemy_check[4]
                                 # 체크 메이트라면
                                 else:
                                     print("checkmate")
@@ -283,25 +373,53 @@ class ChatConsumer(WebsocketConsumer):
                             alarm=result[2]
                         else:
                             pass
-                        print(alarm)
-                        print(result)
-                        print("new_board_state",new_board_state)
+                    else:
+                        pass
 
-                elif horse_type=="R" and isValid_turn:
-                    result=Chess.move_rook(from_positon,to_position,board_state)
-                    new_board_state=result[1]
-                    alarm=result[2]
                     print(alarm)
                     print(result)
                     print("new_board_state",new_board_state)
 
+                # 킹은 움직이면 레디스 킹위치 업데이트
                 elif horse_type=="K" and isValid_turn:
                     result=Chess.move_king(from_positon,to_position,board_state)
                     new_board_state=result[1]
                     alarm=result[2]
-                    print(alarm)
-                    print(result)
-                    print("new_board_state",new_board_state)
+
+                    # 움직인 후 내 킹 체크확인
+                    json_new_board_state=json.dumps(new_board_state)
+                    # 킹 옮긴 위치기준으로 체크
+                    isValid_check=Chess.isValid_check(to_position, new_board_state)
+                    print("체크 확인",isValid_check)
+                    if result[0]==True:
+                        # 킹 옮겼는데 킹 체크가 아니다
+                        if isValid_check[0]==False:
+                            # 우선 움직일 수는 있으니 저장
+                            print("isValid_check",isValid_check)
+                            if my_king==redis_white_k:
+                                redis_new_data={
+                                    "board_state":json_new_board_state,
+                                    "turn":change_turn,
+                                    "white_king":to_position,
+                                }
+                            else:
+                                redis_new_data={
+                                    "board_state":json_new_board_state,
+                                    "turn":change_turn,
+                                    "black_king":to_position,
+                                }
+                                
+                            redis_client.hmset(room_id, redis_new_data)
+
+                        # 내 킹 체크되면 못 옮긴다
+                        elif isValid_check[0]==True:
+                            print("isValid_check",isValid_check)
+                            new_board_state=board_state
+                            alarm=isValid_check[4]
+                        else:
+                            pass
+                    else:
+                        alarm=result[2]
 
                 elif horse_type=="Q" and isValid_turn:
                     result=Chess.move_queen(from_positon,to_position,board_state)
@@ -325,9 +443,7 @@ class ChatConsumer(WebsocketConsumer):
                             # 아니면 옮기고 끝
                             if isValid_enemy_check[0]==False:
                                 print("isValid_enemy_check",isValid_enemy_check)
-                                # new_board_state=redis_board_state
-                                alarm=result[2]
-                            
+
                             # 상대킹 체크라면
                             elif isValid_enemy_check[0]==True:
                                 print("isValid_enemy_check",isValid_enemy_check)
@@ -336,7 +452,7 @@ class ChatConsumer(WebsocketConsumer):
                                 if isValid_enemy_checkmate[0]==False:
                                     print("isValid_enemy_checkmate",isValid_enemy_checkmate)
                                     # new_board_state=redis_board_state
-                                    alarm=result[2]
+                                    alarm=isValid_enemy_check[4]
                                 # 체크 메이트라면
                                 else:
                                     print("checkmate")
@@ -350,7 +466,7 @@ class ChatConsumer(WebsocketConsumer):
                         elif isValid_check[0]==True:
                             print("isValid_check",isValid_check)
                             new_board_state=board_state
-                            alarm=result[2]
+                            alarm=isValid_enemy_check[4]
                         else:
                             pass
                         print(alarm)
@@ -359,7 +475,7 @@ class ChatConsumer(WebsocketConsumer):
                 else:
                     # 턴 아닐때 따로 알려주면 좋을텐데
                     new_board_state=board_state
-                    alarm="당신의 차레가 아닙니다"
+                    alarm=f"지금은 {now_turn}의 턴입니다."
 
 
 
