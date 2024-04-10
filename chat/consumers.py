@@ -105,7 +105,7 @@ class ChatConsumer(WebsocketConsumer):
                 from_positon=horse_move[0]
                 to_position=horse_move[1]
                 horse_type=horse_move[0][3]
-                
+
                 if redis_turn==redis_player_1:
                     now_turn="white"
                 else:
@@ -188,11 +188,36 @@ class ChatConsumer(WebsocketConsumer):
                                 # 체크 메이트라면
                                 else:
                                     print("checkmate")
-                                    pass
-                                    # game=ChessLog.objects.get(id=room_id)
-                                    # game.save()
+                                    alarm=isValid_enemy_check[4] + "그리고 체크메이트 입니다."
+                                    redis=redis_client.hgetall(room_id)
+                                    redis_board_state=redis_client.hget(room_id,"board_state")
+                                    redis_turn=int(redis_client.hget(room_id,"turn"))
+                                    redis_player_1=int(redis_client.hget(room_id,"player_1"))
+                                    redis_player_2=int(redis_client.hget(room_id,"player_2"))
 
-                                    # 체크 메이트 선언
+                                    if redis_turn==redis_player_1:
+                                        lose_user=redis_player_1
+                                        lose_color="W"
+                                        win_user=redis_player_2
+                                    elif redis_turn==redis_player_2:
+                                        lose_user=redis_player_2
+                                        lose_color="B"
+                                        win_user=redis_player_1
+
+                                    game_instance=ChessLog.objects.get(id=room_id)
+                                    win_user_instance=User.objects.get(id=win_user)
+                                    lose_user_instance=User.objects.get(id=lose_user)
+
+                                    game_instance.result=lose_color+"lose"
+                                    game_instance.board_state=new_board_state
+                                    win_user_instance.rank+=5
+                                    win_user_instance.win+=1
+                                    lose_user_instance.rank-=5
+                                    lose_user_instance.lose+=1
+
+                                    game_instance.save()
+                                    win_user_instance.save()
+                                    lose_user_instance.save()
 
                         # 내 킹 체크되면 못옮긴다
                         elif isValid_check[0]==True:
@@ -245,11 +270,36 @@ class ChatConsumer(WebsocketConsumer):
                                 # 체크 메이트라면
                                 else:
                                     print("checkmate")
-                                    pass
-                                    # game=ChessLog.objects.get(id=room_id)
-                                    # game.save()
+                                    alarm=isValid_enemy_check[4] + "그리고 체크메이트 입니다."
+                                    redis=redis_client.hgetall(room_id)
+                                    redis_board_state=redis_client.hget(room_id,"board_state")
+                                    redis_turn=int(redis_client.hget(room_id,"turn"))
+                                    redis_player_1=int(redis_client.hget(room_id,"player_1"))
+                                    redis_player_2=int(redis_client.hget(room_id,"player_2"))
 
-                                    # 체크 메이트 선언
+                                    if redis_turn==redis_player_1:
+                                        lose_user=redis_player_1
+                                        lose_color="W"
+                                        win_user=redis_player_2
+                                    elif redis_turn==redis_player_2:
+                                        lose_user=redis_player_2
+                                        lose_color="B"
+                                        win_user=redis_player_1
+
+                                    game_instance=ChessLog.objects.get(id=room_id)
+                                    win_user_instance=User.objects.get(id=win_user)
+                                    lose_user_instance=User.objects.get(id=lose_user)
+
+                                    game_instance.result=lose_color+"lose"
+                                    game_instance.board_state=new_board_state
+                                    win_user_instance.rank+=5
+                                    win_user_instance.win+=1
+                                    lose_user_instance.rank-=5
+                                    lose_user_instance.lose+=1
+
+                                    game_instance.save()
+                                    win_user_instance.save()
+                                    lose_user_instance.save()
 
                         # 내 킹 체크되면 못옮긴다 원래 체스보드 반납
                         elif isValid_check[0]==True:
@@ -304,11 +354,36 @@ class ChatConsumer(WebsocketConsumer):
                                 # 체크 메이트라면
                                 else:
                                     print("checkmate")
-                                    pass
-                                    # game=ChessLog.objects.get(id=room_id)
-                                    # game.save()
+                                    alarm=isValid_enemy_check[4] + "그리고 체크메이트 입니다."
+                                    redis=redis_client.hgetall(room_id)
+                                    redis_board_state=redis_client.hget(room_id,"board_state")
+                                    redis_turn=int(redis_client.hget(room_id,"turn"))
+                                    redis_player_1=int(redis_client.hget(room_id,"player_1"))
+                                    redis_player_2=int(redis_client.hget(room_id,"player_2"))
 
-                                    # 체크 메이트 선언
+                                    if redis_turn==redis_player_1:
+                                        lose_user=redis_player_1
+                                        lose_color="W"
+                                        win_user=redis_player_2
+                                    elif redis_turn==redis_player_2:
+                                        lose_user=redis_player_2
+                                        lose_color="B"
+                                        win_user=redis_player_1
+
+                                    game_instance=ChessLog.objects.get(id=room_id)
+                                    win_user_instance=User.objects.get(id=win_user)
+                                    lose_user_instance=User.objects.get(id=lose_user)
+
+                                    game_instance.result=lose_color+"lose"
+                                    game_instance.board_state=new_board_state
+                                    win_user_instance.rank+=5
+                                    win_user_instance.win+=1
+                                    lose_user_instance.rank-=5
+                                    lose_user_instance.lose+=1
+
+                                    game_instance.save()
+                                    win_user_instance.save()
+                                    lose_user_instance.save()
 
                         # 내 킹 체크되면 못옮긴다
                         elif isValid_check[0]==True:
@@ -361,11 +436,37 @@ class ChatConsumer(WebsocketConsumer):
                                 else:
                                     print("checkmate")
                                     pass
-                                    # game=ChessLog.objects.get(id=room_id)
-                                    # game.save()
+                                    alarm=isValid_enemy_check[4] + "그리고 체크메이트 입니다."
+                                    redis=redis_client.hgetall(room_id)
+                                    redis_board_state=redis_client.hget(room_id,"board_state")
+                                    redis_turn=int(redis_client.hget(room_id,"turn"))
+                                    redis_player_1=int(redis_client.hget(room_id,"player_1"))
+                                    redis_player_2=int(redis_client.hget(room_id,"player_2"))
 
-                                    # 체크 메이트 선언
+                                    if redis_turn==redis_player_1:
+                                        lose_user=redis_player_1
+                                        lose_color="W"
+                                        win_user=redis_player_2
+                                    elif redis_turn==redis_player_2:
+                                        lose_user=redis_player_2
+                                        lose_color="B"
+                                        win_user=redis_player_1
 
+                                    game_instance=ChessLog.objects.get(id=room_id)
+                                    win_user_instance=User.objects.get(id=win_user)
+                                    lose_user_instance=User.objects.get(id=lose_user)
+
+                                    game_instance.result=lose_color+"lose"
+                                    game_instance.board_state=new_board_state
+                                    win_user_instance.rank+=5
+                                    win_user_instance.win+=1
+                                    lose_user_instance.rank-=5
+                                    lose_user_instance.lose+=1
+
+                                    game_instance.save()
+                                    win_user_instance.save()
+                                    lose_user_instance.save()
+                                    
                         # 내 킹 체크되면 못옮긴다
                         elif isValid_check[0]==True:
                             print("isValid_check",isValid_check)
@@ -454,13 +555,44 @@ class ChatConsumer(WebsocketConsumer):
                                     # new_board_state=redis_board_state
                                     alarm=isValid_enemy_check[4]
                                 # 체크 메이트라면
+                                # return True, board[i_positon][j_positon-i], i_positon, j_positon-i, f"{cls.transform_num_to_str(i_positon, j_positon-i)} 위치에서 {board[i_positon][j_positon-i][1]}가 체크입니다"
+                                # 방 아이디 / 유저 아이디 / 턴 / 보드/  플레이어 레디 / 결과 / 움직임 기록/ 왕 위치
                                 else:
-                                    print("checkmate")
-                                    pass
-                                    # game=ChessLog.objects.get(id=room_id)
-                                    # game.save()
+                                    # 레디스 데이터 들고 오기
+                                    alarm=isValid_enemy_check[4] + "그리고 체크메이트 입니다."
+                                    redis=redis_client.hgetall(room_id)
+                                    redis_board_state=redis_client.hget(room_id,"board_state")
+                                    redis_turn=int(redis_client.hget(room_id,"turn"))
+                                    redis_player_1=int(redis_client.hget(room_id,"player_1"))
+                                    redis_player_2=int(redis_client.hget(room_id,"player_2"))
 
-                                    # 체크 메이트 선언
+                                    if redis_turn==redis_player_1:
+                                        lose_user=redis_player_1
+                                        lose_color="W"
+                                        win_user=redis_player_2
+                                    elif redis_turn==redis_player_2:
+                                        lose_user=redis_player_2
+                                        lose_color="B"
+                                        win_user=redis_player_1
+
+                                    game_instance=ChessLog.objects.get(id=room_id)
+                                    win_user_instance=User.objects.get(id=win_user)
+                                    lose_user_instance=User.objects.get(id=lose_user)
+
+                                    game_instance.result=lose_color+"lose"
+                                    game_instance.board_state=new_board_state
+                                    win_user_instance.rank+=5
+                                    win_user_instance.win+=1
+                                    lose_user_instance.rank-=5
+                                    lose_user_instance.lose+=1
+
+                                    game_instance.save()
+                                    win_user_instance.save()
+                                    lose_user_instance.save()
+
+                                    print("체크메이트 들어옴 데이터 불러보자")
+                                    print("redis",redis)
+                                    print("checkmate")
 
                         # 내 킹 체크되면 못옮긴다
                         elif isValid_check[0]==True:
@@ -475,39 +607,8 @@ class ChatConsumer(WebsocketConsumer):
                 else:
                     # 턴 아닐때 따로 알려주면 좋을텐데
                     new_board_state=board_state
-                    alarm=f"지금은 {now_turn}의 턴입니다."
-
-
-
-                #움직인 후 체스판을 캐시에 저장
-                #db에 저장하는것 비교해보자
-                # 가장 최근에 생성된 체스 게임 기록을 가져옴
-                # start_time = timeit.default_timer()
-                # user=User.objects.get(id=user_id)
-                # for i in range(1):
-                #     latest_chess_game = ChessLog.objects.filter(Q(player_1=user_id) | Q(player_2=user_id)).order_by('-created_at').first()
-                #     latest_chess_game.board_state=board_state
-                #     latest_chess_game.turn=user
-                #     latest_chess_game.save()
-                # end_time = timeit.default_timer()
-                # print(end_time - start_time)
-
-                # user1_room_id = "room1"
-                # user1_room_data = {
-                #     "user_id": user_id,
-                #     "chessboard": str(board_state),
-                #     "turn": user_id,
-                # }
-                
-                # set_room_data(user1_room_id,user1_room_data)
-                # start_time_redis = timeit.default_timer()
-                # get_room=get_room_data("room1")
-                # for i in range(1):
-                #     get_room_chessboard=get_room.get("chessboard",None)
-                #     update_room_data(user1_room_id, "chessboard", str(board_state))
-                # end_time_redis = timeit.default_timer()
-                # print(get_room_chessboard)
-                # print(end_time_redis - start_time_redis)
+                    if isValid_turn==False:
+                        alarm=f"지금은 {now_turn}의 턴입니다."
 
             else:
                 alarm=is_valid_input_str[1]

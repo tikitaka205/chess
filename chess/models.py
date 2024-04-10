@@ -20,7 +20,7 @@ class ChessLog(models.Model):
     turn = models.ForeignKey(User, on_delete=models.CASCADE, related_name='turn',null=True, blank=True)
     player_1_ready = models.BooleanField(default=False,null=True, blank=True)
     player_2_ready = models.BooleanField(default=False,null=True, blank=True)
-    result = models.CharField(max_length=10, choices=(('Wwin','Wwin'),('Bwin','Bwin'),('Wlose','Wlose'),('Blose','Blose'),('Draw','Draw')), blank=True, null=True)
+    result = models.CharField(max_length=10, blank=True, null=True)
     board_state = models.CharField(max_length=400,null=True, blank=True)
     move_log = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
