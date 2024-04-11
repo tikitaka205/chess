@@ -65,7 +65,7 @@ class ChessView(APIView):
                 "player_1_ready":0,
                 "player_2_ready":0,
                 "result":"",
-                "chesslog":"",
+                "chesslog":"[]",
                 "white_king":"e1",
                 "black_king":"e8"
             }

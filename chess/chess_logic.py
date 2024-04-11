@@ -1615,7 +1615,7 @@ class Chess:
         #왼쪽
         # if i_positon + 2 < len(board) and j_positon + 1 < len(board[0]):
         if j_positon - 1 >= 0:
-            for i in range(1,left):
+            for i in range(1,left+1):
                 print(left)
                 print("왼쪽 확인중")
                 print("board[i_positon][j_positon]",board[i_positon][j_positon])
@@ -1635,7 +1635,7 @@ class Chess:
                 else:
                     pass
         if j_positon + 1 < 8:
-            for i in range(1,right):
+            for i in range(1,right+1):
                 print(right)
                 print("오른쪽 확인중")
                 print("i : ",i)
@@ -1654,7 +1654,7 @@ class Chess:
                 else:
                     pass
         if i_positon - 1 >= 0:
-            for i in range(1,up):
+            for i in range(1,up+1):
                 print("위 확인중")
                 if i==1 and board[i_positon-i][j_positon]==horse_color+"K":
                     check_list.append(board[i_positon-i][j_positon])
@@ -1672,7 +1672,7 @@ class Chess:
 
         print("아래 시작전")
         if i_positon + 1 < 8:
-            for i in range(1,down):
+            for i in range(1,down+1):
                 if i==1 and board[i_positon+i][j_positon]==horse_color+"K":
                     check_list.append(board[i_positon+1][j_positon])
                     break

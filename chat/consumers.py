@@ -14,6 +14,7 @@ from django.db.models import Q
 import timeit
 import redis
 
+
 # 레디스 연결 설정
 redis_host = 'localhost'
 redis_port = 6379
@@ -26,6 +27,14 @@ class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
+
+        # 미들웨어를 연결
+        # if self.scope["user"].is_authenticated:
+        #     # 인증된 사용자일 경우, 연결을 수락합니다.
+        #     self.accept()
+        # else:
+        #     # 인증되지 않은 사용자일 경우, 연결을 거부하거나 적절한 처리를 합니다.
+        #     self.close()
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
@@ -41,13 +50,18 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     # Receive message from WebSocket
-    #상대가 보내면 바로 나에게 보임
+    # 상대가 보내면 바로 나에게 보임
     def receive(self, text_data):
         """
         실시간 메세지 보냈을때 구별, 처리
         """
         # print("=======text_data",text_data)
         text_data_json = json.loads(text_data)
+
+        # 알람 다르게
+        user = self.scope['user'].id
+        is_your_turn=True
+
         # print(text_data_json)
         # text_data_json["player_1"]
         if text_data_json["type"]=="message":
@@ -91,6 +105,8 @@ class ChatConsumer(WebsocketConsumer):
             redis_player_2=int(redis_client.hget(room_id,"player_2"))
             redis_white_k=redis_client.hget(room_id,"white_king")
             redis_black_k=redis_client.hget(room_id,"black_king")
+            redis_chesslog=redis_client.hget(room_id,"chesslog")
+            
 
             # json
             board_state = json.loads(redis_board_state) if redis_board_state else None
@@ -163,9 +179,16 @@ class ChatConsumer(WebsocketConsumer):
                         if isValid_check[0]==False:
                             # 우선 움직일 수는 있으니 저장
                             print("isValid_check",isValid_check)
+
+                            list_chesslog = json.loads(redis_chesslog) if redis_chesslog else None
+                            list_chesslog.append(from_positon + to_position)
+                            json_chesslog=json.dumps(list_chesslog)
+                            # print(list_chesslog)
+
                             redis_new_data={
                                 "board_state":json_new_board_state,
-                                "turn":change_turn
+                                "turn":change_turn,
+                                "chesslog":json_chesslog,
                             }
                             redis_client.hmset(room_id, redis_new_data)
 
@@ -244,9 +267,15 @@ class ChatConsumer(WebsocketConsumer):
                         if isValid_check[0]==False:
                             # 우선 움직일 수는 있으니 저장
                             print("isValid_check",isValid_check)
+                            list_chesslog = json.loads(redis_chesslog) if redis_chesslog else None
+                            list_chesslog.append(from_positon + to_position)
+                            json_chesslog=json.dumps(list_chesslog)
+                            # print(list_chesslog)
+
                             redis_new_data={
                                 "board_state":json_new_board_state,
-                                "turn":change_turn
+                                "turn":change_turn,
+                                "chesslog":json_chesslog,
                             }
                             redis_client.hmset(room_id, redis_new_data)
 
@@ -326,9 +355,15 @@ class ChatConsumer(WebsocketConsumer):
                         if isValid_check[0]==False:
                             # 우선 움직일 수는 있으니 저장
                             print("isValid_check",isValid_check)
+                            list_chesslog = json.loads(redis_chesslog) if redis_chesslog else None
+                            list_chesslog.append(from_positon + to_position)
+                            json_chesslog=json.dumps(list_chesslog)
+                            # print(list_chesslog)
+
                             redis_new_data={
                                 "board_state":json_new_board_state,
-                                "turn":change_turn
+                                "turn":change_turn,
+                                "chesslog":json_chesslog,
                             }
                             redis_client.hmset(room_id, redis_new_data)
 
@@ -410,9 +445,15 @@ class ChatConsumer(WebsocketConsumer):
                         if isValid_check[0]==False:
                             # 우선 움직일 수는 있으니 저장
                             print("isValid_check",isValid_check)
+                            list_chesslog = json.loads(redis_chesslog) if redis_chesslog else None
+                            list_chesslog.append(from_positon + to_position)
+                            json_chesslog=json.dumps(list_chesslog)
+                            # print(list_chesslog)
+
                             redis_new_data={
                                 "board_state":json_new_board_state,
-                                "turn":change_turn
+                                "turn":change_turn,
+                                "chesslog":json_chesslog,
                             }
                             redis_client.hmset(room_id, redis_new_data)
 
@@ -466,7 +507,7 @@ class ChatConsumer(WebsocketConsumer):
                                     game_instance.save()
                                     win_user_instance.save()
                                     lose_user_instance.save()
-                                    
+
                         # 내 킹 체크되면 못옮긴다
                         elif isValid_check[0]==True:
                             print("isValid_check",isValid_check)
@@ -497,19 +538,24 @@ class ChatConsumer(WebsocketConsumer):
                         if isValid_check[0]==False:
                             # 우선 움직일 수는 있으니 저장
                             print("isValid_check",isValid_check)
+                            list_chesslog = json.loads(redis_chesslog) if redis_chesslog else None
+                            list_chesslog.append(from_positon + to_position)
+                            json_chesslog=json.dumps(list_chesslog)
+                            # print(list_chesslog)
                             if my_king==redis_white_k:
                                 redis_new_data={
                                     "board_state":json_new_board_state,
                                     "turn":change_turn,
                                     "white_king":to_position,
+                                    "chesslog":json_chesslog,
                                 }
                             else:
                                 redis_new_data={
                                     "board_state":json_new_board_state,
                                     "turn":change_turn,
                                     "black_king":to_position,
+                                    "chesslog":json_chesslog,
                                 }
-                                
                             redis_client.hmset(room_id, redis_new_data)
 
                         # 내 킹 체크되면 못 옮긴다
@@ -532,9 +578,15 @@ class ChatConsumer(WebsocketConsumer):
                         if isValid_check[0]==False:
                             # 우선 움직일 수는 있으니 저장
                             print("isValid_check",isValid_check)
+                            list_chesslog = json.loads(redis_chesslog) if redis_chesslog else None
+                            list_chesslog.append(from_positon + to_position)
+                            json_chesslog=json.dumps(list_chesslog)
+                            # print(list_chesslog)
+
                             redis_new_data={
                                 "board_state":json_new_board_state,
-                                "turn":change_turn
+                                "turn":change_turn,
+                                "chesslog":json_chesslog,
                             }
                             redis_client.hmset(room_id, redis_new_data)
 
@@ -608,13 +660,21 @@ class ChatConsumer(WebsocketConsumer):
                     # 턴 아닐때 따로 알려주면 좋을텐데
                     new_board_state=board_state
                     if isValid_turn==False:
+                        is_your_turn=False
                         alarm=f"지금은 {now_turn}의 턴입니다."
 
             else:
                 alarm=is_valid_input_str[1]
+
+            # is_your_turn==True:
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {"type": "chat.message", "board_state":new_board_state, "alarm":alarm ,"type_name":"board_state"}
             )
+            # else:
+            #     print("user",user)
+            #     async_to_sync(self.channel_layer.group_send)(
+            #         user, {"type": "chat.message", "board_state":new_board_state, "alarm":alarm ,"type_name":"board_state"}
+            #     )
 
     # Receive message from room group
     # 이것도 같은 내용으로 뜸
