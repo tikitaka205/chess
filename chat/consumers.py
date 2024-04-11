@@ -106,10 +106,31 @@ class ChatConsumer(WebsocketConsumer):
             redis_white_k=redis_client.hget(room_id,"white_king")
             redis_black_k=redis_client.hget(room_id,"black_king")
             redis_chesslog=redis_client.hget(room_id,"chesslog")
-            
+            json_chesslog=json.loads(redis_chesslog) if redis_chesslog else None
+            board_state = json.loads(redis_board_state) if redis_board_state else None
+
+            print(json_chesslog)
+            print(len(json_chesslog))
+            if len(json_chesslog)==100:
+                alarm="50턴 무승부 입니다"
+                new_board_state=board_state
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name, {"type": "chat.message", "board_state":new_board_state, "alarm":alarm ,"type_name":"board_state"}
+                    )
+                return
+            if len(json_chesslog)>11: 
+                if json_chesslog[-1]==json_chesslog[-5]==json_chesslog[-9] and json_chesslog[-3]==json_chesslog[-7]==json_chesslog[-11]:
+                    alarm="같은 수 3회 반복 무승부 입니다"
+                    new_board_state=board_state
+                    print("무승부 확인")
+                    print(json_chesslog[-1]==json_chesslog[-5]==json_chesslog[-9])
+                    print(json_chesslog[-3]==json_chesslog[-7]==json_chesslog[-11])
+                    async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name, {"type": "chat.message", "board_state":new_board_state, "alarm":alarm ,"type_name":"board_state"}
+                    )
+                    return
 
             # json
-            board_state = json.loads(redis_board_state) if redis_board_state else None
 
             # #preprocessing for horse move
             pattern = re.compile(r'([a-z][1-8][a-z][A-Z])|([a-z][1-8])')
