@@ -96,9 +96,9 @@ class ChatConsumer(WebsocketConsumer):
         if text_data_json["type"]=="promotion":
             # 딱 하나 들어옴
 
-            # is_valid_input_promotion = Chess.is_valid_input_promotion(horse)
 
             promotion_horse = text_data_json["horse"]
+            is_valid_input_promotion = Chess.is_valid_input_promotion(promotion_horse)
             user_id = text_data_json["user_id"]
             room_id = text_data_json["room_id"]
 
@@ -110,7 +110,7 @@ class ChatConsumer(WebsocketConsumer):
             redis_player_1=int(redis_client.hget(room_id,"player_1"))
             print("redis_promotion_position",redis_promotion_position)
             print("redis_promotion_position",type(redis_promotion_position))
-            if redis_promotion_position!=None:
+            if redis_promotion_position!=None and is_valid_input_promotion[0]==True:
                 i_to=int(redis_promotion_position[0])
                 j_to=int(redis_promotion_position[1])
                 print("i_to",i_to)
@@ -122,8 +122,8 @@ class ChatConsumer(WebsocketConsumer):
                     color="b"
                     change_turn=redis_player_1
 
-                board_state[i_to][j_to]=color+promotion_horse
-                print("color",color+promotion_horse)
+                board_state[i_to][j_to]=color+is_valid_input_promotion[1]
+                print("color",color+is_valid_input_promotion[1])
                 json_new_board_state=json.dumps(board_state)
                 redis_new_data={
                     "board_state":json_new_board_state,
@@ -136,8 +136,13 @@ class ChatConsumer(WebsocketConsumer):
                 redis_client.hdel(room_id, redis_promotion_position)
                 # print("receive에서메세지",message)
             else:
-                new_board_state=board_state
-                alarm="입력을 확인해주세요 예시 : a2pa4"
+                if redis_promotion_position==None:
+                    new_board_state=board_state
+                    alarm="입력을 확인해주세요 예시 : a2pa4"
+                elif is_valid_input_promotion[0]==False:
+                    new_board_state=board_state
+                    alarm=is_valid_input_promotion[1]
+
 
             async_to_sync(self.channel_layer.group_send)(
                     self.room_group_name, {"type": "chat.message", "board_state":new_board_state, "alarm":alarm ,"type_name":"board_state"}

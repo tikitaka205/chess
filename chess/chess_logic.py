@@ -51,11 +51,12 @@ class Chess:
     @classmethod
     def is_valid_input_promotion(cls,position_str):
         print("is_valid_input_promotion",position_str)
-        if len(position_str) == 1 and position_str in "P,Q,K,B,R,N,p,q,k,b,r,n":
+        if len(position_str) == 1 and position_str in "Q,B,R,N,q,b,r,n":
             print("promotion 만족")
+            print("position_str.upper():",position_str.upper())
             return True, position_str.upper()
         else:
-            return False, "P,Q,K,B,R,N 중에 선택해주세요"
+            return False, "Q,B,R,N 중에 선택해주세요"
 
     @classmethod
     def is_valid_input_str(cls,position_str):
