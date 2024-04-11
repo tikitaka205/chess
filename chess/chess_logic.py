@@ -49,24 +49,37 @@ class Chess:
                 self.board[i][s]=EMPTY
 
     @classmethod
+    def is_valid_input_promotion(cls,position_str):
+        print("is_valid_input_promotion",position_str)
+        if len(position_str) == 1 and position_str in "P,Q,K,B,R,N,p,q,k,b,r,n":
+            print("promotion 만족")
+            return True, position_str.upper()
+        else:
+            return False, "P,Q,K,B,R,N 중에 선택해주세요"
+
+    @classmethod
     def is_valid_input_str(cls,position_str):
         # print("position_str[1]",type(position_str))
         # print("position_str[1]",len(position_str))
         # print("position_str[1]",position_str[0])
         # print("position_str[1]",position_str[1])
         print(position_str)
+        # if len(position_str) == 1 and position_str in "P,Q,K,B,R,N,p,q,k,b,r,n":
+        #     print("promotion")
+        #     return True, position_str.upper()
+
         if len(position_str)!= 11:
             print("cant pass len")
-            return False, "check your position"
+            return False, "입력 길이를 확인해주세요 예시 : a2pa4"
         elif not position_str[1].isalpha() or position_str[1].lower() not in 'abcdefgh':
             print("position_str[0][0]",position_str[1])
-            return False, "check your position"
+            return False, "소문자만 입력이 가능합니다. 예시 : a2pa4"
         elif not position_str[2].isdigit() or int(position_str[2]) not in range(1, 9):
             print("position_str[0][0]",position_str[1])
-            return False, "check your position"
+            return False, "보드를 벗어난 곳입니다. 예시 : a2pa4"
         elif position_str[4] not in "P,Q,K,B,R,N":
             print("position_str[0][0]",position_str[1])
-            return False, "check your position"
+            return False, "존재하지 않는 말입니다. 예시 : a2pa4"
         else:
             return True, "good move"
 

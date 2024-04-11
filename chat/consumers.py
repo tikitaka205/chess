@@ -59,8 +59,8 @@ class ChatConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
 
         # 알람 다르게
-        user = self.scope['user'].id
-        is_your_turn=True
+        # user = self.scope['user'].id
+        # is_your_turn=True
 
         # print(text_data_json)
         # text_data_json["player_1"]
@@ -72,6 +72,7 @@ class ChatConsumer(WebsocketConsumer):
                 self.room_group_name, {"type": "chat.message", "message": message,"type_name":"message"}
             )
 
+
         if text_data_json["type"]=="start":
             """
             다른사람에게 게임시작 알림
@@ -80,6 +81,10 @@ class ChatConsumer(WebsocketConsumer):
             """
             alarm="GAME START"
             board_state = text_data_json["board"]
+            room_id = text_data_json["game_id"]
+            redis_board_state=redis_client.hget(room_id,"board_state")
+            board_state = json.loads(redis_board_state) if redis_board_state else None
+
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name, {
                     "type": "chat.message", 
@@ -87,6 +92,56 @@ class ChatConsumer(WebsocketConsumer):
                     "alarm":alarm ,
                     "type_name":"board_state"}
             )
+
+        if text_data_json["type"]=="promotion":
+            # 딱 하나 들어옴
+
+            # is_valid_input_promotion = Chess.is_valid_input_promotion(horse)
+
+            promotion_horse = text_data_json["horse"]
+            user_id = text_data_json["user_id"]
+            room_id = text_data_json["room_id"]
+
+            redis_player_1=int(redis_client.hget(room_id,"player_1"))
+            redis_player_2=int(redis_client.hget(room_id,"player_2"))
+            redis_promotion_position=redis_client.hget(room_id,"promotion_position")
+            redis_board_state=redis_client.hget(room_id,"board_state")
+            board_state = json.loads(redis_board_state) if redis_board_state else None
+            redis_player_1=int(redis_client.hget(room_id,"player_1"))
+            print("redis_promotion_position",redis_promotion_position)
+            print("redis_promotion_position",type(redis_promotion_position))
+            if redis_promotion_position!=None:
+                i_to=int(redis_promotion_position[0])
+                j_to=int(redis_promotion_position[1])
+                print("i_to",i_to)
+                print("j_to",j_to)
+                if redis_player_1==user_id:
+                    color="w"
+                    change_turn=redis_player_2
+                else:
+                    color="b"
+                    change_turn=redis_player_1
+
+                board_state[i_to][j_to]=color+promotion_horse
+                print("color",color+promotion_horse)
+                json_new_board_state=json.dumps(board_state)
+                redis_new_data={
+                    "board_state":json_new_board_state,
+                    "turn":change_turn,
+                }
+
+                new_board_state=board_state
+                alarm=f"{board_state[i_to][j_to]} 로 승급했습니다."
+                redis_client.hmset(room_id, redis_new_data)
+                redis_client.hdel(room_id, redis_promotion_position)
+                # print("receive에서메세지",message)
+            else:
+                new_board_state=board_state
+                alarm="입력을 확인해주세요 예시 : a2pa4"
+
+            async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name, {"type": "chat.message", "board_state":new_board_state, "alarm":alarm ,"type_name":"board_state"}
+                    )
 
         #          'a7bP','a6'
         if text_data_json["type"]=="horse":
@@ -109,8 +164,7 @@ class ChatConsumer(WebsocketConsumer):
             json_chesslog=json.loads(redis_chesslog) if redis_chesslog else None
             board_state = json.loads(redis_board_state) if redis_board_state else None
 
-            print(json_chesslog)
-            print(len(json_chesslog))
+            # 50 draw
             if len(json_chesslog)==100:
                 alarm="50턴 무승부 입니다"
                 new_board_state=board_state
@@ -118,6 +172,8 @@ class ChatConsumer(WebsocketConsumer):
                     self.room_group_name, {"type": "chat.message", "board_state":new_board_state, "alarm":alarm ,"type_name":"board_state"}
                     )
                 return
+
+            # 3 turns draw
             if len(json_chesslog)>11: 
                 if json_chesslog[-1]==json_chesslog[-5]==json_chesslog[-9] and json_chesslog[-3]==json_chesslog[-7]==json_chesslog[-11]:
                     alarm="같은 수 3회 반복 무승부 입니다"
@@ -129,8 +185,6 @@ class ChatConsumer(WebsocketConsumer):
                     self.room_group_name, {"type": "chat.message", "board_state":new_board_state, "alarm":alarm ,"type_name":"board_state"}
                     )
                     return
-
-            # json
 
             # #preprocessing for horse move
             pattern = re.compile(r'([a-z][1-8][a-z][A-Z])|([a-z][1-8])')
@@ -199,27 +253,50 @@ class ChatConsumer(WebsocketConsumer):
                         # 내 킹 체크가 아니다
                         if isValid_check[0]==False:
                             # 우선 움직일 수는 있으니 저장
-                            print("isValid_check",isValid_check)
-
                             list_chesslog = json.loads(redis_chesslog) if redis_chesslog else None
                             list_chesslog.append(from_positon + to_position)
                             json_chesslog=json.dumps(list_chesslog)
+                            
+                            print("isValid_check",isValid_check)
+
+                            # 만약 승급이 가능한 위치라면 일단 캐시 저장하고 입력 받아야함 턴 안바꾸고 입력하라고 함
+                            # 프론트에서 한글자면서 프로모션이면 받아서 보드 캐시 들고와서 보고 저장하고 돌려줌
+                            if i_to==0 or i_to==7:
+                                print("j_toj_toj_to",i_to,j_to)
+                                new_board_state = json.loads(json_new_board_state) if json_new_board_state else None
+                                redis_new_data={
+                                    "board_state":json_new_board_state,
+                                    "chesslog":json_chesslog,
+                                    "promotion_position":str(i_to)+str(j_to),
+                                }
+                                alarm="승격하고 싶은 말의 종류를 입력하세요"
+                                redis_client.hmset(room_id, redis_new_data)
+                                async_to_sync(self.channel_layer.group_send)(
+                                self.room_group_name, {"type": "chat.message", "board_state":new_board_state, "alarm":alarm ,"type_name":"board_state"}
+                                )
+                                return
+                            else:
+                                redis_new_data={
+                                    "board_state":json_new_board_state,
+                                    "turn":change_turn,
+                                    "chesslog":json_chesslog,
+                                }
+                                redis_client.hmset(room_id, redis_new_data)
                             # print(list_chesslog)
 
-                            redis_new_data={
-                                "board_state":json_new_board_state,
-                                "turn":change_turn,
-                                "chesslog":json_chesslog,
-                            }
-                            redis_client.hmset(room_id, redis_new_data)
 
                             # 상대방 체크냐 확인
                             king_checkmate, enemy_king_i, enemy_king_j=Chess.transform_str_to_num(enemy_king)
                             isValid_enemy_check=Chess.isValid_check(enemy_king, new_board_state)
-                            # 아니면 옮기고 끝
+
+                            # not check but stalemate check
                             if isValid_enemy_check[0]==False:
-                                print("isValid_enemy_check",isValid_enemy_check)
                                 pass
+                                # king_checkmate, enemy_king_i, enemy_king_j=Chess.transform_str_to_num(enemy_king)
+                                # isValid_enemy_checkmate=Chess.isValid_checkmate(enemy_king_i, enemy_king_j,new_board_state)
+                                # print("stalemate check",king_checkmate)
+                                # alarm="체크메이트는 아니지만 킹이 움직일 수 없어 stalemate 무승부 입니다"
+                                
                             
                             # 상대킹 체크라면
                             elif isValid_enemy_check[0]==True:
@@ -685,6 +762,7 @@ class ChatConsumer(WebsocketConsumer):
                         alarm=f"지금은 {now_turn}의 턴입니다."
 
             else:
+                new_board_state=board_state
                 alarm=is_valid_input_str[1]
 
             # is_your_turn==True:
