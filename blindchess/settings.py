@@ -17,9 +17,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'secret') if DP_MODE else 'secret'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False if DP_MODE else True
 
-ALLOWED_HOSTS = ['backend'] if DP_MODE else ['*']
-# ALLOWED_HOSTS = []
-
+if os.environ.get('DJANGO_ALLOWED_HOSTS'):
+    ALLOWED_HOSTS=os.environ.get('DJANGO_ALLOWED_HOSTS').split(' ')
+else:
+    ALLOWED_HOSTS = []
 
 # Application definition
 
