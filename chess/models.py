@@ -17,7 +17,7 @@ class ChessLog(models.Model):
 
     player_1 = models.ForeignKey(User, on_delete = models.CASCADE, related_name='player_1',null=True, blank=True)
     player_2 = models.ForeignKey(User, on_delete = models.CASCADE, related_name='player_2',null=True, blank=True)
-    turn = models.ForeignKey(User, on_delete=models.CASCADE, related_name='turn',null=True, blank=True)
+    turn = models.CharField(max_length=10, blank=True, null=True)
     player_1_ready = models.BooleanField(default=False,null=True, blank=True)
     player_2_ready = models.BooleanField(default=False,null=True, blank=True)
     result = models.CharField(max_length=10, blank=True, null=True)

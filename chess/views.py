@@ -49,7 +49,7 @@ class ChessView(APIView):
 
         #방 아이디 / 유저 아이디 / 턴 / 보드/  플레이어 레디 / 결과 / 움직임 기록/ 왕 위치
         if serializer.is_valid():
-            instance=serializer.save(board_state=board_state, player_1=user, turn=user)
+            instance=serializer.save(board_state=board_state, player_1=user, turn=user_id)
             instance_id=instance.id
             room_id=instance_id
 
