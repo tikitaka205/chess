@@ -1,15 +1,25 @@
-version: '3.11.4'
+version: '3.8'
 
 services:
   nginx:
     build: ./nginx
     volumes:
       - static_volume:/usr/src/app/static
-      - media_volume:/usr/src/app/static
+      - media_volume:/usr/src/app/media
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/certbot
     ports:
       - 80:80
+      - 443:443
     depends_on:
       - web
+
+  # https 인증위한 과정
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/certbot
   web:
     build: .
     # command: python manage.py runserver 0.0.0.0:8000
@@ -28,7 +38,7 @@ services:
     volumes:
       - ./:/usr/src/app/
       - static_volume:/usr/src/app/static
-      - media_volume:/usr/src/app/static
+      - media_volume:/usr/src/app/media
     expose:
       - 8000
     depends_on:
