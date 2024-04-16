@@ -15,7 +15,7 @@ DP_MODE = False # 배포 모드 설정 Deploy_Mode
 SECRET_KEY = os.environ.get('SECRET_KEY', 'secret') if DP_MODE else 'secret'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 # DEBUG = False if DP_MODE else True
 
 # ALLOWED_HOSTS = []
