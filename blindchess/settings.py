@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'blindchess.wsgi.application'
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework_simplejwt.authentication.JWTAuthentication', ],
@@ -155,24 +155,26 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Channels
+ASGI_APPLICATION = 'blindchess.asgi.application'
+WSGI_APPLICATION = 'blindchess.wsgi.application'
 AUTH_USER_MODEL = 'user.User'
-ASGI_APPLICATION = "blindchess.asgi.application"
 
 # if DP_MODE:
-#     CHANNEL_LAYERS = {
-#         "default": {
-#             "BACKEND": "channels_redis.core.RedisChannelLayer",
-#             "CONFIG": {
-#                 "hosts": [("127.0.0.1", 6379)],
-#             },
-#         },
-#     }
-# else:
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
     },
 }
+# # else:
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#     },
+# }
 
 CACHES = {
     "default": {
@@ -193,7 +195,14 @@ CACHES = {
 # CORS_ALLOW_CREDENTIALS = False if DP_MODE else True
 # CORS_ALLOW_ALL_ORIGINS = False if DP_MODE else True
 # CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
-CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = ['http://blindchess.shop', 'http://43.200.179.49', 'http://backend.blindchess.shop']
+CORS_ALLOW_CREDENTIALS = False
+CORS_ALLOW_ALL_ORIGINS = False
+CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
+
+# 원래있던
+# CORS_ORIGIN_ALLOW_ALL = True
 
 
 

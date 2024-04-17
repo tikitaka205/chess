@@ -5,11 +5,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # 파이썬 로그가 버퍼링 없이 즉각적으로 출력하도록 설정합니다.
 ENV PYTHONUNBUFFERED=1
 
-# RUN mkdir /usr/src/app/
+RUN mkdir /usr/src/app/
 WORKDIR /usr/src/app
 
 # 필요한 패키지들을 추가 해야함
-# RUN apk update
+RUN apk update
 # pogres빌드위한 것
 # RUN apk add libpq-dev
 
@@ -17,9 +17,11 @@ WORKDIR /usr/src/app
 COPY requirements.txt /usr/src/app/
 
 RUN pip install -r requirements.txt
-RUN pip install gunicorn
+
+#.= 여기에 있는파일 모두 usr/src여기에 복붙한다 의미
 COPY . /usr/src/app/
 
+RUN pip install gunicorn
 ###########################################
 # /app/ 디렉토리를 생성합니다.
 # RUN mkdir /app/
