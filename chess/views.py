@@ -9,7 +9,7 @@ from .chess_logic import Chess
 import redis
 import json
 
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+redis_client = redis.StrictRedis(host='blindchess.shop', port=6379, db=0, decode_responses=True)
 
 class ChessView(APIView):
     def get(self, request):
@@ -52,6 +52,8 @@ class ChessView(APIView):
             instance=serializer.save(board_state=board_state, player_1=user, turn=user_id)
             instance_id=instance.id
             room_id=instance_id
+            print("instance_id",instance_id)
+            print("instance",instance)
 
             #레디스에 저장하기 위해 json str로 변경
             json_string = json.dumps(board_state)
@@ -71,11 +73,12 @@ class ChessView(APIView):
             }
             # 캐시에 방마다 해시구조로 저장
             redis_client.hmset(room_id, redis_data)
-
+            get_data=redis_client.hgetall(room_id)
+            print("캐시저장 지나감 과연 캐시 작동?",get_data)
+            print("get_data",get_data)
             # # 데이터 조회
             # pl=redis_client.hget(room_id,"player_1")
             # turn=redis_client.hget(room_id,"turn")
-            # get_data=redis_client.hget(room_id,"board_state")
             # # 바이트로 들어온 데이터 str로 decode 후 json.loads 으로 리스트로 변환
             # pr=json.loads(get_data.decode('utf-8'))
 

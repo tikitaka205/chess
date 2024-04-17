@@ -20,10 +20,10 @@ services:
     # 프로젝트 폴더의 wsgi와 연결시키는거임
     # 이제부터는 docker-compose -f docker-compose.prod.yml build 입력한다
     # 이제부터는 docker-compose -f docker-compose.prod.yml up 입력한다
-    entrypoint: sh -c "python manage.py migrate && gunicorn blindchess.wsgi --workers=5 -b 0.0.0.0:8000"
-    command: gunicorn blindchess.wsgi:application --bind 0.0.0.0:8000
-    # ports:
-    #   - 8000:8000
+    entrypoint: sh -c "python3 manage.py collectstatic --no-input && python manage.py migrate && gunicorn blindchess.wsgi --workers=5 -b 0.0.0.0:8000"
+    # command: gunicorn blindchess.wsgi:application --bind 0.0.0.0:8000
+    ports:
+      - 8000:8000
     working_dir: /usr/src/app
     # volumes:
     #   - ./:/usr/src/app/
@@ -33,8 +33,8 @@ services:
       - ./:/usr/src/app/
       - static_volume:/usr/src/app/static
       - media_volume:/usr/src/app/media
-    # expose:
-    #   - 8000
+    expose:
+      - 8000
     depends_on:
       - db
   db:
@@ -58,12 +58,18 @@ services:
  ##### 추가
   asgiserver:
     build: .
+    # command: daphne -u /tmp/daphne.sock egodaeyeo.asgi:application --bind 0.0.0.0 -p 8080
     command: daphne -b 0.0.0.0 -p 8080 blindchess.asgi:application
+    # daphne -b 0.0.0.0 -p 8080 blindchess.asgi:application
+    expose:
+      - 8080
     volumes:
       - ./:/usr/src/app/
     restart: always
     env_file:
       - ./.env.postgres.prod
+    ports:
+      - 8080:8080
     depends_on:
       - redis
       - db

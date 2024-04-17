@@ -9,7 +9,7 @@ RUN mkdir /usr/src/app/
 WORKDIR /usr/src/app
 
 # 필요한 패키지들을 추가 해야함
-RUN apk update
+# RUN apk update
 # pogres빌드위한 것
 # RUN apk add libpq-dev
 

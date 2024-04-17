@@ -16,7 +16,7 @@ import redis
 
 
 # 레디스 연결 설정
-redis_host = 'localhost'
+redis_host = 'blindchess.shop'
 redis_port = 6379
 redis_password = None
 

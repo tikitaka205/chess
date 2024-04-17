@@ -15,14 +15,15 @@ DP_MODE = False # 배포 모드 설정 Deploy_Mode
 SECRET_KEY = os.environ.get('SECRET_KEY', 'secret') if DP_MODE else 'secret'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-# DEBUG = False if DP_MODE else True
+# DEBUG = False
+DEBUG = False if DP_MODE else True
 
 # ALLOWED_HOSTS = []
 if os.environ.get('DJANGO_ALLOWED_HOSTS'):
     ALLOWED_HOSTS=os.environ.get('DJANGO_ALLOWED_HOSTS').split(' ')
 else:
     ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = ['backend'] if DP_MODE else ['*']
 
 # Application definition
@@ -85,29 +86,28 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 # POSTGRES_DB 뒤 들어가는건 없을때의 디폴트값을 쓴다
-# POSTGRES_DATABASE = os.environ.get('POSTGRES_DB', '')
+POSTGRES_DATABASE = os.environ.get('POSTGRES_DB', '')
 #  if DP_MODE else False
 # print("DP_MODE",DP_MODE)
 # print("POSTGRES_DATABASE",POSTGRES_DATABASE)
-# if POSTGRES_DATABASE:
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DATABASE', ''),
-        'USER': os.environ.get('POSTGRES_USER', ''),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
-        'HOST': os.environ.get('POSTGRES_HOST', ''),
-        'PORT': os.environ.get('POSTGRES_PORT', ''),
+if POSTGRES_DATABASE:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_DATABASE', ''),
+            'USER': os.environ.get('POSTGRES_USER', ''),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
+            'HOST': os.environ.get('POSTGRES_HOST', ''),
+            'PORT': os.environ.get('POSTGRES_PORT', ''),
+        }
     }
-}
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -160,26 +160,26 @@ ASGI_APPLICATION = 'blindchess.asgi.application'
 WSGI_APPLICATION = 'blindchess.wsgi.application'
 AUTH_USER_MODEL = 'user.User'
 
-# if DP_MODE:
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("redis", 6379)],
+if DP_MODE:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("redis", 6379)],
+            },
         },
-    },
-}
-# # else:
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#     },
-# }
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": "redis://redis.shop:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -192,17 +192,16 @@ CACHES = {
 # CORS_ORIGIN_WHITELIST = ['localhost', '127.0.0.1', '[::1]', '0.0.0.0']
 
 # 예외 없이 다 수락
-# CORS_ALLOW_CREDENTIALS = False if DP_MODE else True
-# CORS_ALLOW_ALL_ORIGINS = False if DP_MODE else True
+CORS_ALLOW_CREDENTIALS = False if DP_MODE else True
+CORS_ALLOW_ALL_ORIGINS = False if DP_MODE else True
+CORS_ORIGIN_WHITELIST = ['http://blindchess.shop', 'http://43.200.179.49', 'http://backend.blindchess.shop']
+CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
+# CORS_ALLOW_CREDENTIALS = False
+# CORS_ALLOW_ALL_ORIGINS = False
 # CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
 
-CORS_ORIGIN_WHITELIST = ['http://blindchess.shop', 'http://43.200.179.49', 'http://backend.blindchess.shop']
-CORS_ALLOW_CREDENTIALS = False
-CORS_ALLOW_ALL_ORIGINS = False
-CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
-
 # 원래있던
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = False if DP_MODE else True
 
 
 
